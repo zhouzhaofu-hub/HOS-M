@@ -1,0 +1,9 @@
+{
+  "name": "智护OS-M版-V1.0",
+  "description": "专业的智慧康养机器人管理系统，提供远程音视频通话、体征监测、用药提醒及AI健康分析。",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ],
+  "majorCapabilities": []
+}

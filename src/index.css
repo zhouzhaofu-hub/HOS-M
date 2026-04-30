@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@theme {
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 20px;
+  
+  --color-brand-blue: #0066FF;
+  --color-brand-red: #FF3B30;
+  --color-bg-base: #FFFFFF;
+  --color-bg-secondary: #F8FAFC;
+  --color-border-base: #F1F5F9;
+  --color-text-main: #1A1C1E;
+  --color-text-muted: #8E8E93;
+}
+
+@layer base {
+  body {
+    @apply antialiased text-text-main bg-white;
+    font-family: 'SF Pro Display', 'PingFang SC', sans-serif;
+  }
+}
+
+@layer components {
+  .geo-card {
+    @apply bg-white border border-border-base rounded-xl p-5 shadow-none transition-colors;
+  }
+  
+  .glass {
+    @apply bg-white/90 backdrop-blur-md border-b border-border-base;
+  }
+  
+  .btn-flat-primary {
+    @apply bg-brand-blue text-white rounded-lg font-bold text-xs py-3 px-4 transition-all active:bg-blue-700;
+  }
+  
+  .btn-flat-secondary {
+    @apply bg-bg-secondary text-text-main rounded-lg font-bold text-xs py-3 px-4 border border-border-base active:bg-slate-200;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Big Font Mode adaptations */
+.text-lg .text-xs { font-size: 0.875rem; }
+.text-lg .text-sm { font-size: 1rem; }
+.text-lg .text-base { font-size: 1.125rem; }
+.text-lg h1 { font-size: 2rem; }
+.text-lg h2 { font-size: 1.5rem; }
+.text-lg h3 { font-size: 1.25rem; }
