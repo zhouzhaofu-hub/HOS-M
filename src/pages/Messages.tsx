@@ -1,12 +1,30 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { Layout } from '../components/Layout';
 import { MOCK_MESSAGES } from '../constants';
-import { ShieldAlert, Pill, ShieldCheck, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ShieldAlert, Pill, ShieldCheck, Settings, ChevronLeft, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
+
+const CATEGORIES = [
+  { id: 'all', label: '全部' },
+  { id: 'alert', label: '告警' },
+  { id: 'health', label: '健康' },
+  { id: 'log', label: '日志' },
+];
 
 export default function Messages() {
   const navigate = useNavigate();
+  const [activeCategory, setActiveCategory] = useState('all');
+  const [messages, setMessages] = useState(MOCK_MESSAGES);
+
+  const filteredMessages = useMemo(() => {
+    if (activeCategory === 'all') return messages;
+    return messages.filter(msg => msg.type === activeCategory);
+  }, [activeCategory, messages]);
+
+  const clearAll = () => {
+    setMessages([]);
+  };
 
   return (
     <div className="flex flex-col h-full bg-white">
@@ -18,22 +36,53 @@ export default function Messages() {
           </button>
           <h1 className="text-xl font-black text-text-main uppercase tracking-tight">消息通知</h1>
         </div>
-        <button className="text-[10px] text-brand-blue font-black uppercase tracking-widest">全部清除</button>
+        {messages.length > 0 && (
+          <button 
+            onClick={clearAll}
+            className="text-[10px] text-brand-blue font-black uppercase tracking-widest active:opacity-60 transition-opacity"
+          >
+            全部清除
+          </button>
+        )}
       </div>
 
       {/* Categories */}
-      <div className="flex px-6 py-5 gap-3 overflow-x-auto scrollbar-hide shrink-0">
-        <button className="px-6 py-2 bg-text-main text-white rounded-lg text-[10px] font-black uppercase tracking-widest shrink-0">全部</button>
-        <button className="px-6 py-2 bg-white text-text-muted border border-border-base rounded-lg text-[10px] font-black uppercase tracking-widest shrink-0">告警</button>
-        <button className="px-6 py-2 bg-white text-text-muted border border-border-base rounded-lg text-[10px] font-black uppercase tracking-widest shrink-0">健康</button>
-        <button className="px-6 py-2 bg-white text-text-muted border border-border-base rounded-lg text-[10px] font-black uppercase tracking-widest shrink-0">日志</button>
+      <div className="flex px-6 py-5 gap-3 overflow-x-auto scrollbar-hide shrink-0 bg-white shadow-[0_1px_0_0_rgba(0,0,0,0.02)]">
+        {CATEGORIES.map((cat) => (
+          <button 
+            key={cat.id}
+            onClick={() => setActiveCategory(cat.id)}
+            className={`px-6 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest shrink-0 transition-all active:scale-95 ${
+              activeCategory === cat.id 
+                ? 'bg-text-main text-white shadow-lg shadow-slate-200' 
+                : 'bg-white text-text-muted border border-border-base'
+            }`}
+          >
+            {cat.label}
+          </button>
+        ))}
       </div>
 
       {/* Message List */}
-      <div className="flex-1 overflow-y-auto px-6 space-y-4 pb-12 scrollbar-hide">
-        {MOCK_MESSAGES.map((msg, idx) => (
-          <MessageItem key={msg.id} msg={msg} idx={idx} />
-        ))}
+      <div className="flex-1 overflow-y-auto px-6 space-y-4 pt-4 pb-12 scrollbar-hide bg-slate-50/30">
+        <AnimatePresence mode="popLayout">
+          {filteredMessages.length > 0 ? (
+            filteredMessages.map((msg, idx) => (
+              <MessageItem key={msg.id} msg={msg} idx={idx} />
+            ))
+          ) : (
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex flex-col items-center justify-center h-full pt-20 text-text-muted opacity-40 px-12 text-center"
+            >
+              <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+                <Settings className="w-8 h-8 opacity-40" />
+              </div>
+              <p className="text-sm font-black uppercase tracking-widest">暂无该类通知</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* iOS Home Indicator */}
@@ -43,33 +92,67 @@ export default function Messages() {
 }
 
 const MessageItem: React.FC<{ msg: any; idx: number }> = ({ msg, idx }) => {
+  const navigate = useNavigate();
   const isAlert = msg.type === 'alert';
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: idx * 0.1 }}
-      className={`rounded-xl p-5 shadow-none relative overflow-hidden group cursor-pointer border ${isAlert ? 'bg-rose-50 border-rose-100' : 'bg-slate-50 border-border-base'}`}
+      layout
+      initial={{ opacity: 0, x: -20, scale: 0.98 }}
+      animate={{ opacity: 1, x: 0, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95, filter: 'blur(10px)' }}
+      transition={{ 
+        type: 'spring',
+        stiffness: 300,
+        damping: 30,
+        delay: idx * 0.05 
+      }}
+      className={`rounded-[28px] p-5 shadow-sm relative overflow-hidden group cursor-pointer border ${
+        isAlert 
+          ? 'bg-rose-50/80 border-rose-100/50 backdrop-blur-sm' 
+          : 'bg-white border-border-base shadow-slate-100/30'
+      }`}
     >
       <div className="flex gap-4 relative z-10">
-        <div className={`w-12 h-12 rounded-lg flex items-center justify-center shrink-0 ${isAlert ? 'bg-rose-500 text-white' : 'bg-white border border-border-base text-brand-blue'}`}>
+        <div className={`w-12 h-12 rounded-[18px] flex items-center justify-center shrink-0 ${
+          isAlert 
+            ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20' 
+            : 'bg-slate-50 border border-slate-100 text-brand-blue'
+        }`}>
            {msg.type === 'alert' && <ShieldAlert className="w-6 h-6" />}
            {msg.type === 'health' && <Pill className="w-6 h-6" />}
            {msg.type === 'log' && <ShieldCheck className="w-6 h-6" />}
            {msg.type === 'system' && <Settings className="w-6 h-6" />}
         </div>
-        <div className="flex-1">
-          <div className="flex justify-between items-center mb-1">
-            <h4 className={`font-black text-sm uppercase tracking-tight ${isAlert ? 'text-rose-900' : 'text-text-main'}`}>{msg.title}</h4>
-            <span className={`text-[9px] font-black uppercase tracking-widest ${isAlert ? 'text-rose-400' : 'text-text-muted'}`}>{msg.time}</span>
+        <div className="flex-1 min-w-0">
+          <div className="flex justify-between items-center mb-1.5">
+            <h4 className={`font-black text-base tracking-tight truncate ${isAlert ? 'text-rose-900' : 'text-text-main'}`}>
+              {msg.title}
+            </h4>
+            <span className={`text-[10px] font-black uppercase tracking-widest whitespace-nowrap ml-2 tabular-nums ${
+              isAlert ? 'text-rose-400' : 'text-text-muted opacity-60'
+            }`}>
+              {msg.time}
+            </span>
           </div>
-          <p className={`text-xs font-medium leading-relaxed ${isAlert ? 'text-rose-700' : 'text-text-muted'}`}>{msg.content}</p>
+          <p className={`text-[13px] font-medium leading-relaxed ${isAlert ? 'text-rose-700/80' : 'text-text-muted/80'}`}>
+            {msg.content}
+          </p>
           
           {isAlert && (
-            <div className="flex gap-2 mt-4">
-              <Link to="/control?alert=true" className="btn-flat-primary py-2 px-4">立即查看</Link>
-              <button className="btn-flat-secondary py-2 px-4 shadow-none">呼叫 120</button>
+            <div className="flex gap-2.5 mt-4">
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/alert-detail?id=${msg.id}`);
+                }} 
+                className="flex-1 bg-brand-blue text-white py-3 rounded-2xl font-black text-[11px] active:scale-95 transition-all shadow-md shadow-brand-blue/10 uppercase tracking-widest"
+              >
+                立即查看
+              </button>
+              <button className="flex-1 bg-white border border-slate-100 text-text-muted py-3 rounded-2xl font-black text-[11px] active:scale-95 transition-all uppercase tracking-widest">
+                呼叫 120
+              </button>
             </div>
           )}
         </div>
@@ -77,5 +160,6 @@ const MessageItem: React.FC<{ msg: any; idx: number }> = ({ msg, idx }) => {
     </motion.div>
   );
 };
+
 
 import { Link } from 'react-router-dom';

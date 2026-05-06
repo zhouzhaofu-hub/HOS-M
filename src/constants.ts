@@ -31,6 +31,13 @@ export const MOCK_MESSAGES: Message[] = [
     time: '10:24'
   },
   {
+    id: '4',
+    type: 'alert',
+    title: '关键预警：生命体征异常',
+    content: '非接触式监测显示张大爷心率（48 BPM）与呼吸频率（10 次/分）显著低于正常阈值，请立即确认老人状态。',
+    time: '14:20'
+  },
+  {
     id: '2',
     type: 'health',
     title: '用药依从性日报',

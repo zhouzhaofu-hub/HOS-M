@@ -100,7 +100,7 @@ export default function Maintenance() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10">
                       <p className="text-[9px] font-black uppercase tracking-widest text-blue-200 mb-1">系统固件</p>
-                      <p className="text-xs font-black">v5.0.2 稳定版</p>
+                      <p className="text-xs font-black">v1.0.0 稳定版</p>
                     </div>
                     <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10">
                       <p className="text-[9px] font-black uppercase tracking-widest text-blue-200 mb-1">最近运维</p>

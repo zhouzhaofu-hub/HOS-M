@@ -18,6 +18,12 @@ import RobotSettings from './pages/RobotSettings';
 import ElderlyProfile from './pages/ElderlyProfile';
 import SecuritySettings from './pages/SecuritySettings';
 import FamilySharing from './pages/FamilySharing';
+import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
+import AlertDetail from './pages/AlertDetail';
+import HealthReport from './pages/HealthReport';
 
 const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isLoggedIn, hasRobotBound } = useAppContext();
@@ -32,6 +38,10 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/privacy" element={<Privacy />} />
       <Route path="/bind" element={<Bind />} />
       <Route
         path="/*"
@@ -48,6 +58,8 @@ function AppRoutes() {
               <Route path="/elderly-profile" element={<ElderlyProfile />} />
               <Route path="/security" element={<SecuritySettings />} />
               <Route path="/family-sharing" element={<FamilySharing />} />
+              <Route path="/alert-detail" element={<AlertDetail />} />
+              <Route path="/health-report" element={<HealthReport />} />
             </Routes>
           </AuthGuard>
         }
