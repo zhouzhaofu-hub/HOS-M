@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Layout } from '../components/Layout';
-import { MOCK_USER, MOCK_ROBOT } from '../constants';
+import { MOCK_USER } from '../constants';
 import { Avatar } from '../components/Avatar';
 import { 
   Bell, 
@@ -9,13 +9,11 @@ import {
   Video, 
   MapPin, 
   Heart, 
-  ChevronRight, 
   Activity, 
   Moon, 
   Zap, 
   Calendar, 
   BarChart3, 
-  CheckCircle2,
   TrendingUp,
   ClipboardCheck,
   Lightbulb,
@@ -30,9 +28,11 @@ import { useAppContext } from '../context/AppContext';
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { hasRobotBound } = useAppContext();
+  const { hasRobotBound, robots, activeRobotId, setActiveRobotId } = useAppContext();
   const [activeTab, setActiveTab] = useState('daily');
-  const [showAlert, setShowAlert] = useState(hasRobotBound); // Only show if bound
+  const [showAlert, setShowAlert] = useState(hasRobotBound);
+
+  const activeRobot = robots.find(r => r.id === activeRobotId) || robots[0];
 
   return (
     <Layout>
@@ -56,7 +56,7 @@ export default function Dashboard() {
                     <span className="text-[10px] font-black text-rose-500/60 uppercase tracking-widest tabular-nums">14:20</span>
                   </div>
                   <p className="text-rose-900/70 text-[12px] leading-tight font-bold">
-                    张大爷 监测到心率 48 BPM，呼吸 10次/分
+                    监测到心率 48 次/分，呼吸 10次/分
                   </p>
                 </div>
                 
@@ -76,7 +76,7 @@ export default function Dashboard() {
                   立即处理
                 </button>
                 <button className="flex-1 bg-white border border-rose-100 text-[#ff2d55] py-3 rounded-2xl font-black text-xs active:scale-95 transition-all">
-                  一键呼叫
+                  一键呼叫120
                 </button>
               </div>
             </div>
@@ -84,25 +84,53 @@ export default function Dashboard() {
         )}
       </AnimatePresence>
 
-      <div className="px-6 pt-12 pb-4 flex justify-between items-end border-b border-border-base bg-white">
-        <div>
-          <h2 className="text-xl font-black text-text-main mt-1">早上好，大壮</h2>
+      <div className="px-6 pt-12 pb-4 bg-white border-b border-border-base">
+        <div className="flex justify-between items-end mb-4">
+          <div>
+            <h2 className="text-xl font-black text-text-main mt-1">早上好，大壮</h2>
+          </div>
+          <div className="flex gap-2">
+            <Link
+              to="/messages"
+              className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center border border-border-base relative active:scale-95 transition-transform"
+            >
+              <Bell className="w-5 h-5 text-text-muted" />
+              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-rose-500 rounded-full border-2 border-white"></span>
+            </Link>
+            <Link
+              to="/profile"
+              className="w-10 h-10 rounded-xl border border-border-base overflow-hidden active:scale-95 transition-transform"
+            >
+              <Avatar src={MOCK_USER.avatar} className="w-full h-full" />
+            </Link>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <Link
-            to="/messages"
-            className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center border border-border-base relative active:scale-95 transition-transform"
-          >
-            <Bell className="w-5 h-5 text-text-muted" />
-            <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-rose-500 rounded-full border-2 border-white"></span>
-          </Link>
-          <Link
-            to="/profile"
-            className="w-10 h-10 rounded-xl border border-border-base overflow-hidden active:scale-95 transition-transform"
-          >
-            <Avatar src={MOCK_USER.avatar} className="w-full h-full" />
-          </Link>
-        </div>
+
+        {/* Robot Quick Switcher */}
+        {hasRobotBound && robots.length > 1 && (
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide py-1">
+            {robots.map((robot) => (
+              <button
+                key={robot.id}
+                onClick={() => setActiveRobotId(robot.id)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all shrink-0 active:scale-95 ${
+                  activeRobotId === robot.id 
+                    ? 'bg-brand-blue border-brand-blue text-white shadow-md' 
+                    : 'bg-white border-slate-100 text-slate-500'
+                }`}
+              >
+                <div className={`w-1.5 h-1.5 rounded-full ${robot.status === 'online' ? 'bg-emerald-400' : 'bg-slate-300'}`} />
+                <span className="text-[10px] font-black uppercase tracking-widest">{robot.name.split(' - ')[1]}</span>
+              </button>
+            ))}
+            <Link 
+              to="/family-sharing" 
+              className="w-8 h-8 rounded-full bg-slate-50 border border-dashed border-slate-200 flex items-center justify-center text-slate-400 shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+            </Link>
+          </div>
+        )}
       </div>
 
       <div className="px-6 space-y-6 pt-6 pb-12 bg-white">
@@ -126,12 +154,12 @@ export default function Dashboard() {
               </div>
               <div>
                 <h3 className="font-black text-text-main text-base tracking-tight">
-                  {hasRobotBound ? MOCK_ROBOT.name : '未绑定设备'}
+                  {hasRobotBound ? activeRobot.name : '未绑定设备'}
                 </h3>
                 <div className="flex items-center gap-1.5 mt-0.5">
-                  <div className={`w-1.5 h-1.5 rounded-full ${hasRobotBound ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`} />
-                  <span className={`text-[10px] font-black uppercase tracking-widest ${hasRobotBound ? 'text-emerald-600' : 'text-slate-400'}`}>
-                    {hasRobotBound ? `${MOCK_ROBOT.location} · 在线` : '离线'}
+                  <div className={`w-1.5 h-1.5 rounded-full ${hasRobotBound && activeRobot.status === 'online' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`} />
+                  <span className={`text-[10px] font-black uppercase tracking-widest ${hasRobotBound && activeRobot.status === 'online' ? 'text-emerald-600' : 'text-slate-400'}`}>
+                    {hasRobotBound ? `${activeRobot.status === 'online' ? '在线' : '离线'}` : '离线'}
                   </span>
                 </div>
               </div>
@@ -139,7 +167,7 @@ export default function Dashboard() {
             <div className="bg-white px-2.5 py-1 rounded-xl flex items-center gap-1.5 border border-border-base shadow-sm">
               <Battery className={`w-3.5 h-3.5 ${hasRobotBound ? 'text-emerald-500' : 'text-slate-300'}`} />
               <span className="text-[10px] font-black text-text-main tabular-nums">
-                {hasRobotBound ? `${MOCK_ROBOT.battery}%` : '--'}
+                {hasRobotBound ? `${activeRobot.battery}%` : '--'}
               </span>
             </div>
           </div>
@@ -190,7 +218,7 @@ export default function Dashboard() {
                 <span className="text-2xl font-black text-text-main tabular-nums">
                   {hasRobotBound ? '72' : '-'}
                 </span>
-                <span className="text-[9px] font-bold text-text-muted">BPM</span>
+                <span className="text-[9px] font-bold text-text-muted">次/分</span>
               </div>
             </Link>
 
@@ -213,7 +241,7 @@ export default function Dashboard() {
                 <span className="text-2xl font-black text-text-main tabular-nums">
                   {hasRobotBound ? '7.4' : '-'}
                 </span>
-                <span className="text-[9px] font-bold text-text-muted">H</span>
+                <span className="text-[9px] font-bold text-text-muted">小时</span>
               </div>
             </Link>
           </div>
@@ -271,14 +299,14 @@ export default function Dashboard() {
                       <p className="text-[10px] font-bold text-text-muted mb-2">血压</p>
                       <p className="text-base font-black text-text-main mb-1">{hasRobotBound ? '118/76' : '-'}</p>
                       <p className={`text-[8px] font-black uppercase tracking-tighter ${hasRobotBound ? 'text-emerald-500' : 'text-slate-300'}`}>
-                        {hasRobotBound ? '血压正常' : '未监测'} (mmHg)
+                        {hasRobotBound ? '血压' : '未监测'}
                       </p>
                    </div>
                    <div className="flex flex-col items-center px-1">
                       <p className="text-[10px] font-bold text-text-muted mb-2">血糖</p>
                       <p className="text-base font-black text-text-main mb-1">{hasRobotBound ? '5.4' : '-'}</p>
                       <p className={`text-[8px] font-black uppercase tracking-tighter ${hasRobotBound ? 'text-emerald-500' : 'text-slate-300'}`}>
-                        {hasRobotBound ? '血糖正常' : '未监测'} (mmol/L)
+                        {hasRobotBound ? '血糖' : '未监测'}
                       </p>
                    </div>
                    <div className="flex flex-col items-center px-1">
@@ -289,95 +317,6 @@ export default function Dashboard() {
                       </p>
                    </div>
                 </div>
-              </motion.div>
-            ) : activeTab === 'weekly' || activeTab === 'monthly' ? (
-              <motion.div
-                key="report-content"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                className="space-y-4"
-              >
-                {/* Indicator Summary */}
-                <div className="geo-card border-none bg-slate-50 p-5 rounded-2xl">
-                  <div className="flex items-center gap-2 mb-4">
-                    <TrendingUp className="w-4 h-4 text-brand-blue" />
-                    <h4 className="text-xs font-black text-text-main uppercase tracking-tight">{activeTab === 'weekly' ? '本周' : '本月'}指标总结</h4>
-                  </div>
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="bg-white p-3 rounded-xl border border-border-base text-center">
-                      <p className="text-[9px] font-bold text-text-muted mb-1">血压均值</p>
-                      <p className="text-sm font-black text-text-main">{hasRobotBound ? '122/78' : '-'}</p>
-                      <p className={`text-[8px] font-bold mt-1 ${hasRobotBound ? 'text-emerald-500' : 'text-slate-300'}`}>
-                        {hasRobotBound ? '达标' : '无数据'}
-                      </p>
-                    </div>
-                    <div className="bg-white p-3 rounded-xl border border-border-base text-center">
-                      <p className="text-[9px] font-bold text-text-muted mb-1">血糖均值</p>
-                      <p className="text-sm font-black text-text-main">{hasRobotBound ? '5.6' : '-'}</p>
-                      <p className={`text-[8px] font-bold mt-1 ${hasRobotBound ? 'text-emerald-500' : 'text-slate-300'}`}>
-                        {hasRobotBound ? '达标' : '无数据'}
-                      </p>
-                    </div>
-                    <div className="bg-white p-3 rounded-xl border border-border-base text-center">
-                      <p className="text-[9px] font-bold text-text-muted mb-1">异常次数</p>
-                      <p className={`text-sm font-black ${hasRobotBound ? 'text-rose-500' : 'text-slate-300'}`}>
-                        {hasRobotBound ? (activeTab === 'weekly' ? '2' : '5') : '0'}
-                      </p>
-                      <p className={`text-[8px] font-bold mt-1 ${hasRobotBound ? 'text-rose-400' : 'text-slate-300'}`}>
-                        {hasRobotBound ? '需关注' : '无预警'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Compliance Summary */}
-                <div className="geo-card border-none bg-slate-50 p-5 rounded-2xl">
-                  <div className="flex items-center gap-2 mb-4">
-                    <ClipboardCheck className="w-4 h-4 text-brand-blue" />
-                    <h4 className="text-xs font-black text-text-main uppercase tracking-tight">依从性总结</h4>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center text-[10px] font-bold">
-                      <span className="text-text-muted">用药按时率</span>
-                      <span className="text-text-main">{hasRobotBound ? '98%' : '-'}</span>
-                    </div>
-                    <div className="h-1.5 bg-white rounded-full overflow-hidden border border-border-base">
-                      <div className={`h-full bg-emerald-500 transition-all duration-1000 ${hasRobotBound ? 'w-[98%]' : 'w-0'}`}></div>
-                    </div>
-                    <div className="flex justify-between items-center text-[10px] font-bold">
-                      <span className="text-text-muted">测量完成率</span>
-                      <span className="text-text-main">{hasRobotBound ? '92%' : '-'}</span>
-                    </div>
-                    <div className="h-1.5 bg-white rounded-full overflow-hidden border border-border-base">
-                      <div className={`h-full bg-brand-blue transition-all duration-1000 ${hasRobotBound ? 'w-[92%]' : 'w-0'}`}></div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Health Advice */}
-                  <div className={`geo-card border-none p-5 rounded-2xl border ${hasRobotBound ? 'bg-emerald-50/50 border-emerald-100' : 'bg-slate-50 border-slate-100'}`}>
-                    <div className="flex items-center gap-2 mb-3">
-                      <Lightbulb className={`w-4 h-4 ${hasRobotBound ? 'text-emerald-600' : 'text-slate-400'}`} />
-                      <h4 className={`text-xs font-black uppercase tracking-tight ${hasRobotBound ? 'text-emerald-600' : 'text-slate-400'}`}>AI 健康建议</h4>
-                    </div>
-                    <p className={`text-[11px] leading-relaxed font-medium tracking-tight ${hasRobotBound ? 'text-emerald-800' : 'text-slate-400'}`}>
-                      {hasRobotBound ? (
-                        activeTab === 'weekly' 
-                          ? '本周血压在早晨时段有波动，建议监测晨起第一次服药后的反应，并减少晚餐盐分摄入。' 
-                          : '本月整体指标趋稳，但深度睡眠时长相比上月缩短12%，建议改善睡前环境亮度。'
-                      ) : '您尚未绑定智护机器人，AI 无法根据实时监测数据生成个性化健康建议。'}
-                    </p>
-                  </div>
-
-                {/* Doctor Sharing */}
-                <button 
-                  onClick={() => navigate('/health-report?type=weekly')}
-                  className="w-full bg-brand-blue text-white rounded-2xl flex items-center justify-center gap-2 py-4 shadow-lg shadow-brand-blue/20 active:scale-95 transition-all font-black text-[12px] uppercase tracking-widest mt-4"
-                >
-                  <Share2 className="w-4 h-4" />
-                  <span>查看完整健康评估报告</span>
-                </button>
               </motion.div>
             ) : null}
           </AnimatePresence>
@@ -398,12 +337,3 @@ function RobotIcon(props: any) {
     </svg>
   );
 }
-
-function ThermometerIcon(props: any) {
-  return (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z" />
-    </svg>
-  );
-}
-

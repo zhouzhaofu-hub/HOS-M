@@ -151,7 +151,7 @@ export default function Bind() {
                 {method === 'manual' && (
                   <div className="w-full space-y-6">
                     <div className="space-y-2">
-                      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">设备序列号 (SN)</label>
+                      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">设备序列号</label>
                       <input 
                         type="text" 
                         value={serialNumber}
@@ -254,7 +254,6 @@ export default function Bind() {
                  </div>
                  <div>
                     <h2 className="text-lg font-black text-slate-900 leading-none">初始化快速配置</h2>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-2 leading-none">INITIAL DEVICE SETUP</p>
                  </div>
               </div>
 
@@ -273,7 +272,7 @@ export default function Bind() {
                       <div className="space-y-4">
                         <div className="p-4 bg-white rounded-2xl border border-slate-100 flex items-center justify-between shadow-sm">
                            <div>
-                              <p className="text-[10px] font-bold text-slate-400 uppercase leading-none mb-1.5">当前手机 Wi-Fi</p>
+                              <p className="text-[10px] font-bold text-slate-400 uppercase leading-none mb-1.5">当前手机无线网络</p>
                               <p className="text-sm font-black text-slate-800 tracking-tight">{wifiSsid}</p>
                            </div>
                            <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500">
@@ -307,7 +306,6 @@ export default function Bind() {
                               </div>
                               <div>
                                  <p className="text-sm font-black text-slate-800 leading-none mb-1">摔倒预警</p>
-                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none">FALL DETECTION</p>
                               </div>
                            </div>
                            <div className={`w-10 h-6 rounded-full relative transition-colors ${fallDetection ? 'bg-brand-blue' : 'bg-slate-200'}`}>
@@ -326,7 +324,6 @@ export default function Bind() {
                               </div>
                               <div>
                                  <p className="text-sm font-black text-slate-800 leading-none mb-1">隐私遮罩</p>
-                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none">PRIVACY MASKING</p>
                               </div>
                            </div>
                            <div className={`w-10 h-6 rounded-full relative transition-colors ${privacyMode ? 'bg-brand-blue' : 'bg-slate-200'}`}>

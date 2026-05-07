@@ -35,7 +35,7 @@ export interface ServiceOwner {
 
 export interface Message {
   id: string;
-  type: 'alert' | 'health' | 'log' | 'system';
+  type: 'alert' | 'prompt' | 'info';
   title: string;
   content: string;
   time: string;

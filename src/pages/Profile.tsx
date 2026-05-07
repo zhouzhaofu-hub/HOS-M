@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Layout } from '../components/Layout';
 import { MOCK_USER } from '../constants';
 import { Avatar } from '../components/Avatar';
@@ -11,15 +11,28 @@ import {
   FileText, 
   MessageSquare, 
   ShieldCheck, 
-  LogOut 
+  LogOut,
+  X,
+  Check
 } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'motion/react';
 
 export default function Profile() {
   const navigate = useNavigate();
+  const [userName, setUserName] = useState('王大力');
+  const [isEditing, setIsEditing] = useState(false);
+  const [tempName, setTempName] = useState('王大力');
 
   const handleLogout = () => {
     navigate('/login');
+  };
+
+  const handleSaveName = () => {
+    if (tempName.trim()) {
+      setUserName(tempName.trim());
+      setIsEditing(false);
+    }
   };
 
   return (
@@ -28,12 +41,18 @@ export default function Profile() {
         <div className="flex-1 overflow-y-auto scrollbar-hide pb-20">
           
           {/* User Profile Header - WeChat Style */}
-          <div className="bg-white px-6 pt-16 pb-8 flex items-center gap-5 active:bg-slate-50 transition-colors cursor-pointer">
+          <div 
+            onClick={() => {
+              setIsEditing(true);
+              setTempName(userName);
+            }} 
+            className="bg-white px-6 pt-16 pb-8 flex items-center gap-5 active:bg-slate-50 transition-colors cursor-pointer"
+          >
             <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-100 shrink-0 shadow-sm border border-slate-100">
               <Avatar src={MOCK_USER.avatar} className="w-full h-full" />
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-xl font-bold text-text-main tracking-tight truncate">王大力</h2>
+              <h2 className="text-xl font-bold text-text-main tracking-tight truncate">{userName}</h2>
               <div className="flex items-center justify-between mt-1">
                 <p className="text-sm text-text-muted">智护账号: WD_889230</p>
                 <ChevronRight className="w-5 h-5 text-slate-300" />
@@ -104,6 +123,70 @@ export default function Profile() {
           <p className="text-center text-[11px] text-slate-400 mt-10 tracking-wide font-medium">智护OS系统 v1.0.0 稳定版</p>
         </div>
       </div>
+
+      {/* Edit Name Modal */}
+      <AnimatePresence>
+        {isEditing && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="w-full max-w-[320px] bg-white rounded-[24px] overflow-hidden shadow-2xl flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="bg-slate-50 px-6 py-5 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-black text-slate-900 leading-none">维护姓名</h3>
+                  <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1.5">EDIT PROFILE NAME</p>
+                </div>
+                <button 
+                  onClick={() => setIsEditing(false)} 
+                  className="w-8 h-8 rounded-full bg-slate-200/50 flex items-center justify-center text-slate-500 active:scale-90 transition-transform"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="p-6">
+                <div className="bg-slate-50 rounded-2xl border border-slate-100 p-4 focus-within:border-brand-blue/30 focus-within:bg-white transition-all">
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">真实姓名</label>
+                  <input 
+                    autoFocus
+                    type="text"
+                    value={tempName}
+                    onChange={(e) => setTempName(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
+                    placeholder="请输入您的姓名"
+                    className="w-full bg-transparent text-lg font-bold text-slate-900 outline-none placeholder:text-slate-300"
+                  />
+                </div>
+                
+                <p className="mt-4 text-[11px] text-slate-400 font-medium px-1 flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-brand-blue mt-1 shrink-0" />
+                  姓名将用于家人分享与紧急预警时的身份识别。
+                </p>
+
+                <div className="mt-8 flex gap-3">
+                  <button 
+                    onClick={() => setIsEditing(false)}
+                    className="flex-1 py-3.5 rounded-2xl bg-slate-100 text-slate-500 font-black text-xs uppercase tracking-widest active:scale-95 transition-all"
+                  >
+                    取消
+                  </button>
+                  <button 
+                    onClick={handleSaveName}
+                    className="flex-3 py-3.5 rounded-2xl bg-brand-blue text-white font-black text-xs uppercase tracking-widest active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg shadow-brand-blue/20"
+                  >
+                    <Check className="w-4 h-4" />
+                    确认修改
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </Layout>
   );
 }
