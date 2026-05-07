@@ -31,6 +31,7 @@ export interface ServiceOwner {
   medicalHistory: string;
   medicalRecord: string;
   isDefault: boolean;
+  robotIds?: string[];
 }
 
 export interface Message {

@@ -1,0 +1,101 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() { return request.auth != null; }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+
+    function isValidUser(data) {
+      return data.size() >= 2
+        && data.keys().hasAll(['uid', 'email'])
+        && data.uid is string && data.uid.size() <= 128 && data.uid == request.auth.uid
+        && data.email is string && data.email.size() <= 256;
+    }
+
+    match /users/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && userId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.uid == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(userId) && userId == request.auth.uid 
+        && isValidUser(incoming()) && incoming().keys().size() <= 5;
+      allow update: if isSignedIn() && isValidId(userId) && userId == request.auth.uid 
+        && isValidUser(incoming()) 
+        && incoming().uid == existing().uid
+        && incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'avatar']);
+      allow delete: if false;
+    }
+
+    function isValidRobot(data) {
+      return data.size() >= 3
+        && data.keys().hasAll(['id', 'name', 'ownerId'])
+        && data.id is string && data.id.size() <= 128
+        && data.name is string && data.name.size() <= 100
+        && data.ownerId is string && data.ownerId.size() <= 128;
+    }
+
+    match /robots/{robotId} {
+      allow get: if isSignedIn() && isValidId(robotId) && existing().ownerId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(robotId) 
+        && isValidRobot(incoming()) 
+        && incoming().ownerId == request.auth.uid
+        && incoming().keys().size() <= 7;
+      allow update: if isSignedIn() && isValidId(robotId)
+        && existing().ownerId == request.auth.uid
+        && isValidRobot(incoming())
+        && incoming().ownerId == existing().ownerId
+        && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'status', 'battery', 'wifi', 'settings']);
+      allow delete: if isSignedIn() && isValidId(robotId) && existing().ownerId == request.auth.uid; 
+    }
+
+    function isValidOwner(data) {
+      return data.size() >= 3
+        && data.keys().hasAll(['id', 'name', 'userId'])
+        && data.id is string && data.id.size() <= 128
+        && data.name is string && data.name.size() <= 64
+        && data.userId is string && data.userId.size() <= 128;
+    }
+
+    match /owners/{ownerId} {
+      allow get: if isSignedIn() && isValidId(ownerId) && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && (resource == null || resource.data.userId == request.auth.uid);
+      allow create: if isSignedIn() && isValidId(ownerId)
+        && isValidOwner(incoming())
+        && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn() && isValidId(ownerId)
+        && existing().userId == request.auth.uid
+        && isValidOwner(incoming())
+        && incoming().userId == existing().userId
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'name', 'avatar', 'age', 'bloodType', 'phone', 'address', 
+          'medicalHistory', 'medicalRecord', 'isDefault', 'robotIds'
+        ]);
+      allow delete: if isSignedIn() && isValidId(ownerId) && existing().userId == request.auth.uid;
+    }
+
+    function isValidMessage(data) {
+      return data.size() >= 5
+        && data.keys().hasAll(['id', 'type', 'title', 'content', 'userId'])
+        && data.id is string && data.id.size() <= 128
+        && data.type is string && data.type in ['alert', 'prompt', 'info']
+        && data.title is string && data.title.size() <= 200
+        && data.content is string && data.content.size() <= 1000
+        && data.userId is string && data.userId.size() <= 128;
+    }
+
+    match /messages/{messageId} {
+      allow get: if isSignedIn() && isValidId(messageId) && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(messageId)
+        && isValidMessage(incoming())
+        && incoming().userId == request.auth.uid
+        && incoming().keys().size() <= 6;
+      allow update: if false;
+      allow delete: if isSignedIn() && isValidId(messageId) && existing().userId == request.auth.uid;
+    }
+  }
+}

@@ -9,7 +9,9 @@ import {
   ShieldCheck, 
   Bot, 
   ChevronRight,
-  RefreshCw
+  RefreshCw,
+  Edit2,
+  Check
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
@@ -17,10 +19,34 @@ import { useAppContext } from '../context/AppContext';
 
 export default function RobotSettings() {
   const navigate = useNavigate();
-  const { robots, activeRobotId, setActiveRobotId } = useAppContext();
+  const { robots, setRobots, activeRobotId, setActiveRobotId } = useAppContext();
   
-  const activeRobot = robots.find(r => r.id === activeRobotId) || robots[0];
+  const activeRobot = robots.find(r => r.id === activeRobotId) || robots[0] || null;
   const [isSwitching, setIsSwitching] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editNameValue, setEditNameValue] = useState("");
+
+  const handleEditNameClick = () => {
+    setEditNameValue(activeRobot?.name || "");
+    setIsEditingName(true);
+  };
+
+  const handleSaveName = () => {
+    if (editNameValue.trim()) {
+      setRobots(robots.map(r => r.id === activeRobotId ? { ...r, name: editNameValue.trim() } : r));
+    }
+    setIsEditingName(false);
+  };
+
+  if (!activeRobot) {
+    return (
+      <Layout>
+        <div className="flex flex-col h-full bg-slate-50/50 items-center justify-center">
+          <p className="text-slate-500 font-bold">没有已绑定的机器人</p>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -98,7 +124,27 @@ export default function RobotSettings() {
                 </div>
               </div>
               <div className="flex-1">
-                <h2 className="text-base font-black text-slate-900">{activeRobot.name}</h2>
+                {isEditingName ? (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      className="text-base font-black text-slate-900 border-b border-brand-blue outline-none bg-transparent w-full"
+                      value={editNameValue}
+                      onChange={(e) => setEditNameValue(e.target.value)}
+                      autoFocus
+                    />
+                    <button onClick={handleSaveName} className="p-1 rounded bg-brand-blue text-white active:scale-95">
+                      <Check className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-base font-black text-slate-900">{activeRobot.name}</h2>
+                    <button onClick={handleEditNameClick} className="p-1 text-slate-400 hover:text-brand-blue transition-colors">
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
                 <p className="text-[10px] font-bold text-slate-400 mt-0.5 uppercase tracking-widest">
                   ID: RB_{activeRobot.id}10293
                 </p>

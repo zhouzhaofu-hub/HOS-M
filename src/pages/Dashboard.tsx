@@ -32,7 +32,7 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('daily');
   const [showAlert, setShowAlert] = useState(hasRobotBound);
 
-  const activeRobot = robots.find(r => r.id === activeRobotId) || robots[0];
+  const activeRobot = robots.find(r => r.id === activeRobotId) || robots[0] || null;
 
   return (
     <Layout>
@@ -154,20 +154,20 @@ export default function Dashboard() {
               </div>
               <div>
                 <h3 className="font-black text-text-main text-base tracking-tight">
-                  {hasRobotBound ? activeRobot.name : '未绑定设备'}
+                  {activeRobot ? activeRobot.name : '未绑定设备'}
                 </h3>
                 <div className="flex items-center gap-1.5 mt-0.5">
-                  <div className={`w-1.5 h-1.5 rounded-full ${hasRobotBound && activeRobot.status === 'online' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`} />
-                  <span className={`text-[10px] font-black uppercase tracking-widest ${hasRobotBound && activeRobot.status === 'online' ? 'text-emerald-600' : 'text-slate-400'}`}>
-                    {hasRobotBound ? `${activeRobot.status === 'online' ? '在线' : '离线'}` : '离线'}
+                  <div className={`w-1.5 h-1.5 rounded-full ${activeRobot && activeRobot.status === 'online' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`} />
+                  <span className={`text-[10px] font-black uppercase tracking-widest ${activeRobot && activeRobot.status === 'online' ? 'text-emerald-600' : 'text-slate-400'}`}>
+                    {activeRobot ? `${activeRobot.status === 'online' ? '在线' : '离线'}` : '离线'}
                   </span>
                 </div>
               </div>
             </div>
             <div className="bg-white px-2.5 py-1 rounded-xl flex items-center gap-1.5 border border-border-base shadow-sm">
-              <Battery className={`w-3.5 h-3.5 ${hasRobotBound ? 'text-emerald-500' : 'text-slate-300'}`} />
+              <Battery className={`w-3.5 h-3.5 ${activeRobot ? 'text-emerald-500' : 'text-slate-300'}`} />
               <span className="text-[10px] font-black text-text-main tabular-nums">
-                {hasRobotBound ? `${activeRobot.battery}%` : '--'}
+                {activeRobot ? `${activeRobot.battery}%` : '--'}
               </span>
             </div>
           </div>

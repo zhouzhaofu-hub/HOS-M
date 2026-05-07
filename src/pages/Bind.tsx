@@ -17,13 +17,16 @@ import {
 } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 import { motion, AnimatePresence } from 'motion/react';
+import { db } from '../firebase';
+import { setDoc, doc } from 'firebase/firestore';
+import { handleFirestoreError } from '../context/AppContext';
 
 type BindMethod = 'qr' | 'search' | 'manual';
 type BindStep = 'initial' | 'searching' | 'binding' | 'setup' | 'success';
 
 export default function Bind() {
   const navigate = useNavigate();
-  const { setHasRobotBound } = useAppContext();
+  const { setHasRobotBound, user } = useAppContext();
   const [method, setMethod] = useState<BindMethod>('qr');
   const [step, setStep] = useState<BindStep>('initial');
   const [isSkipChecked, setIsSkipChecked] = useState(false);
@@ -54,8 +57,29 @@ export default function Bind() {
     }, 3000);
   };
 
-  const handleCompleteSetup = () => {
+  const handleCompleteSetup = async () => {
     setStep('success');
+    if (user) {
+      const newRobotId = Date.now().toString();
+      const newRobot = {
+        id: newRobotId,
+        name: `智护机器人 - 新设备`,
+        status: 'online',
+        battery: 100,
+        wifi: wifiSsid,
+        ownerId: user.uid,
+        settings: {
+          volume: 80,
+          sensitivity: '中等'
+        }
+      };
+      
+      try {
+        await setDoc(doc(db, 'robots', newRobotId), newRobot);
+      } catch(e) {
+        handleFirestoreError(e, 0 as any, `robots/${newRobotId}`);
+      }
+    }
     setHasRobotBound(true);
     setTimeout(() => {
       navigate('/');

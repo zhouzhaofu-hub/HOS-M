@@ -1,0 +1,90 @@
+{
+  "entities": {
+    "user": {
+      "title": "User",
+      "description": "A user of the application",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "avatar": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email"]
+    },
+    "robot": {
+      "title": "Robot",
+      "description": "A robot device bound to a user",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "status": { "type": "string", "enum": ["online", "offline"] },
+        "battery": { "type": "number" },
+        "wifi": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "settings": {
+           "type": "object",
+           "properties": {
+              "volume": { "type": "number" },
+              "sensitivity": { "type": "string" }
+           }
+        }
+      },
+      "required": ["id", "name", "ownerId"]
+    },
+    "owner": {
+      "title": "Service Owner",
+      "description": "An elderly person receiving care",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "avatar": { "type": "string" },
+        "age": { "type": "number" },
+        "bloodType": { "type": "string" },
+        "phone": { "type": "string" },
+        "address": { "type": "string" },
+        "medicalHistory": { "type": "string" },
+        "medicalRecord": { "type": "string" },
+        "isDefault": { "type": "boolean" },
+        "robotIds": { "type": "array", "items": { "type": "string" } },
+        "userId": { "type": "string" }
+      },
+      "required": ["id", "name", "userId"]
+    },
+    "message": {
+      "title": "Message",
+      "description": "A notification message",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string", "enum": ["alert", "prompt", "info"] },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "time": { "type": "string" },
+        "userId": { "type": "string" }
+      },
+      "required": ["id", "type", "title", "content", "userId"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": { "$ref": "user" },
+      "description": "User profiles"
+    },
+    "robots/{robotId}": {
+      "schema": { "$ref": "robot" },
+      "description": "Robots bound to users"
+    },
+    "owners/{ownerId}": {
+      "schema": { "$ref": "owner" },
+      "description": "Service owners (elderly) managed by users"
+    },
+    "messages/{messageId}": {
+      "schema": { "$ref": "message" },
+      "description": "Global messages for users"
+    }
+  }
+}

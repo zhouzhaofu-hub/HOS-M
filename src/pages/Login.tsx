@@ -1,28 +1,83 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { Smartphone, ShieldCheck, ArrowRight, Bot, Lock, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { auth } from '../firebase';
+import { GoogleAuthProvider, OAuthProvider, signInWithPopup, signInAnonymously } from 'firebase/auth';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { setIsLoggedIn, setHasRobotBound } = useAppContext();
+  const { user, setIsLoggedIn, setHasRobotBound, authLoaded } = useAppContext();
   const [loading, setLoading] = useState(false);
   const [loginMode, setLoginMode] = useState<'password' | 'sms'>('password');
   const [showAgreement, setShowAgreement] = useState<'service' | 'privacy' | null>(null);
 
-  const handleLogin = (skipBind = false) => {
+  useEffect(() => {
+    if (authLoaded && user) {
+      navigate('/', { replace: true });
+    }
+  }, [authLoaded, user, navigate]);
+
+  const handleGoogleLogin = async () => {
     setLoading(true);
-    setTimeout(() => {
-      setIsLoggedIn(true);
-      if (skipBind) {
-        setHasRobotBound(true);
-        navigate('/');
-      } else {
-        navigate('/bind');
-      }
-    }, 1500);
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+      navigate('/');
+    } catch (e) {
+      console.error("Google logic error: ", e);
+      alert('登录失败，请重试');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleAppleLogin = async () => {
+    setLoading(true);
+    const provider = new OAuthProvider('apple.com');
+    try {
+      await signInWithPopup(auth, provider);
+      navigate('/');
+    } catch (e) {
+      console.error("Apple login error: ", e);
+      alert('苹果登录失败，请重试');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleWechatLogin = async () => {
+    setLoading(true);
+    // Since WeChat isn't natively supported by standard Firebase popup without custom backend
+    // We will simulate a login or fallback to anonymous login for demo purposes.
+    try {
+      await signInAnonymously(auth);
+      navigate('/');
+    } catch (e) {
+      console.error("Wechat login error: ", e);
+      alert('微信登录失败，请重试');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAnonymousLogin = async () => {
+    setLoading(true);
+    try {
+      await signInAnonymously(auth);
+      navigate('/');
+    } catch (e) {
+      console.error(e);
+      alert('登录失败');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (!authLoaded) {
+    return <div className="flex h-full items-center justify-center bg-white"><div className="w-8 h-8 border-4 border-brand-blue border-t-transparent rounded-full animate-spin"></div></div>;
+  }
 
   return (
     <div className="flex flex-col h-full bg-white px-8 pt-16 relative">
@@ -100,7 +155,7 @@ export default function Login() {
           </AnimatePresence>
 
           <button
-            onClick={() => handleLogin(false)}
+            onClick={handleAnonymousLogin}
             disabled={loading}
             className="w-full bg-brand-blue text-white py-4 rounded-2xl font-black text-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2 group mt-4 shadow-lg shadow-brand-blue/20"
           >
@@ -108,7 +163,7 @@ export default function Login() {
               <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : (
               <>
-                <span>登录智护OS</span>
+                <span>匿名登录智护OS</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </>
             )}
@@ -134,21 +189,34 @@ export default function Login() {
         <div className="w-full mt-10">
           <div className="flex items-center gap-4 mb-6">
             <div className="h-px flex-1 bg-slate-100"></div>
-            <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">快捷登录</span>
+            <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">其他登录方式</span>
             <div className="h-px flex-1 bg-slate-100"></div>
           </div>
           <div className="flex justify-center gap-6">
             <button 
-              onClick={() => handleLogin(true)}
+              onClick={handleWechatLogin}
               className="w-14 h-14 rounded-2xl border border-slate-100 flex items-center justify-center hover:bg-slate-50 active:scale-90 transition-all"
             >
               <svg className="w-6 h-6 text-[#07C160]" fill="currentColor" viewBox="0 0 24 24"><path d="M12.131 2C6.452 2 2 5.926 2 10.533c0 2.57 1.54 4.887 3.948 6.425.074.04.148.07.168.14.02.07.03.418.01.761a15.82 15.82 0 0 1-.36 1.944c-.031.14-.149.3-.129.35.03.05.158.04.307.01a14.735 14.735 0 0 0 4.1-1.396c.228-.13.435-.11.663-.07 1.109.212 2.316.323 3.553.323 5.679 0 10.131-3.926 10.131-8.533S17.81 2 12.131 2z" /></svg>
             </button>
             <button 
-              onClick={() => handleLogin(true)}
+              onClick={handleAppleLogin}
               className="w-14 h-14 rounded-2xl border border-slate-100 flex items-center justify-center hover:bg-slate-50 active:scale-90 transition-all"
             >
-              <Smartphone className="w-6 h-6 text-slate-900" />
+              <svg className="w-6 h-6 text-slate-900" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.046 14.372c-.03-2.613 2.148-3.882 2.247-3.938-1.22-1.782-3.117-2.023-3.791-2.062-1.61-.164-3.148.948-3.971.948-.823 0-2.091-.91-3.416-.885-1.722.027-3.313.998-4.205 2.55-1.808 3.125-.462 7.747 1.303 10.297.868 1.258 1.892 2.661 3.256 2.615 1.312-.05 1.815-.843 3.41-.843 1.583 0 2.052.843 3.424.814 1.396-.027 2.274-1.261 3.134-2.522 1-.1449 1.41-2.85 1.442-2.91-1.4-.648-2.203-2.016-2.233-3.664M14.78 6.467c.725-.873 1.215-2.09.1-4.064-.95.038-2.233.633-2.98 1.523-.668.799-1.266 2.046-1.112 3.265 1.05.08 2.228-.52 2.991-1.391"/>
+              </svg>
+            </button>
+            <button 
+              onClick={handleGoogleLogin}
+              className="w-14 h-14 rounded-2xl border border-slate-100 flex items-center justify-center hover:bg-slate-50 active:scale-90 transition-all"
+            >
+              <svg className="w-6 h-6" viewBox="0 0 24 24">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+              </svg>
             </button>
           </div>
         </div>
