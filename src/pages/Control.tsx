@@ -4,9 +4,12 @@ import { Layout } from '../components/Layout';
 import { ChevronLeft, Settings, Mic, Volume2, Camera, Video, Phone, X, Home, Smile, MapPin, Footprints, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MOCK_ROBOT } from '../constants';
+import { useAppContext } from '../context/AppContext';
+import { Link } from 'react-router-dom';
 
 export default function Control() {
   const navigate = useNavigate();
+  const { hasRobotBound } = useAppContext();
   const [isMicOn, setIsMicOn] = useState(false);
   const [isSpeakerOn, setIsSpeakerOn] = useState(true);
   const [activeRoom, setActiveRoom] = useState('living');
@@ -23,6 +26,32 @@ export default function Control() {
   return (
     <Layout>
       <div className="flex flex-col h-full bg-white relative overflow-hidden">
+        {!hasRobotBound && (
+          <div className="absolute inset-0 z-[100] bg-slate-900 flex flex-col items-center justify-center p-8 text-center">
+            <div className="w-20 h-20 rounded-3xl bg-slate-800 flex items-center justify-center text-slate-500 mb-8 border border-white/5 shadow-2xl">
+              <Video className="w-10 h-10" />
+            </div>
+            <h2 className="text-xl font-black text-white mb-2 tracking-tight">未检测到绑定的智护终端</h2>
+            <p className="text-xs text-slate-400 font-bold mb-10 max-w-[240px] leading-relaxed">
+              实时视频与室内智控功能需要建立加密 TLS 连接。请先完成智护机器人绑定。
+            </p>
+            <div className="flex flex-col gap-3 w-full max-w-[200px]">
+              <Link 
+                to="/bind" 
+                className="bg-brand-blue text-white py-4 rounded-2xl font-black text-sm shadow-xl shadow-brand-blue/20 flex items-center justify-center gap-2 active:scale-95 transition-all"
+              >
+                <span>立即去绑定</span>
+                <ChevronLeft className="w-4 h-4 rotate-180" />
+              </Link>
+              <button 
+                onClick={() => navigate(-1)}
+                className="bg-white/5 text-slate-300 py-4 rounded-2xl font-black text-sm border border-white/10 active:scale-95 transition-all"
+              >
+                返回首页
+              </button>
+            </div>
+          </div>
+        )}
         {/* Video Preview Area */}
         <div className="relative h-[38vh] bg-slate-900 overflow-hidden shrink-0">
           <AnimatePresence mode="wait">

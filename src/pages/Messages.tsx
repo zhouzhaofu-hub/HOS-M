@@ -125,15 +125,17 @@ const MessageItem: React.FC<{ msg: any; idx: number }> = ({ msg, idx }) => {
            {msg.type === 'system' && <Settings className="w-6 h-6" />}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex justify-between items-center mb-1.5">
-            <h4 className={`font-black text-base tracking-tight truncate ${isAlert ? 'text-rose-900' : 'text-text-main'}`}>
+          <div className="flex justify-between items-start mb-1.5">
+            <h4 className={`font-black text-base tracking-tight leading-tight ${isAlert ? 'text-rose-900' : 'text-text-main'}`}>
               {msg.title}
             </h4>
-            <span className={`text-[10px] font-black uppercase tracking-widest whitespace-nowrap ml-2 tabular-nums ${
-              isAlert ? 'text-rose-400' : 'text-text-muted opacity-60'
+            <div className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider whitespace-nowrap ml-3 tabular-nums transition-colors ${
+              isAlert 
+                ? 'bg-rose-500/10 text-rose-500 border border-rose-500/20' 
+                : 'bg-slate-100 text-slate-500 border border-slate-200/50'
             }`}>
               {msg.time}
-            </span>
+            </div>
           </div>
           <p className={`text-[13px] font-medium leading-relaxed ${isAlert ? 'text-rose-700/80' : 'text-text-muted/80'}`}>
             {msg.content}

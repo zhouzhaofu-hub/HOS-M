@@ -14,9 +14,14 @@ import {
   Activity, 
   Moon, 
   Zap,
-  Info
+  Info,
+  ShieldAlert,
+  Plus,
+  Thermometer,
+  BrainCircuit,
+  Wind
 } from 'lucide-react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { 
   BarChart, 
   Bar, 
@@ -32,6 +37,7 @@ import {
   Cell 
 } from 'recharts';
 import { motion, AnimatePresence } from 'motion/react';
+import { useAppContext } from '../context/AppContext';
 
 const WEEKLY_COMPLIANCE = [
   { day: '周一', value: 100 },
@@ -60,6 +66,7 @@ const HEALTH_DISTRIBUTION = [
 ];
 
 export default function HealthReport() {
+  const { hasRobotBound } = useAppContext();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const type = searchParams.get('type') || 'weekly'; // weekly or monthly
@@ -87,16 +94,41 @@ export default function HealthReport() {
             </div>
           </div>
           <div className="flex gap-2">
-            <button className="w-10 h-10 rounded-xl bg-brand-blue/5 text-brand-blue flex items-center justify-center border border-brand-blue/10 active:scale-95">
+            <button 
+              disabled={!hasRobotBound}
+              className={`w-10 h-10 rounded-xl bg-brand-blue/5 text-brand-blue flex items-center justify-center border border-brand-blue/10 active:scale-95 ${!hasRobotBound && 'opacity-30'}`}
+            >
               <Download className="w-5 h-5" />
             </button>
-            <button className="w-10 h-10 rounded-xl bg-brand-blue text-white flex items-center justify-center shadow-lg shadow-brand-blue/20 active:scale-95">
+            <button 
+              disabled={!hasRobotBound}
+              className={`w-10 h-10 rounded-xl bg-brand-blue text-white flex items-center justify-center shadow-lg shadow-brand-blue/20 active:scale-95 ${!hasRobotBound && 'opacity-30'}`}
+            >
               <Share2 className="w-5 h-5" />
             </button>
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto scrollbar-hide">
+        <div className="flex-1 overflow-y-auto scrollbar-hide relative">
+          {!hasRobotBound && (
+            <div className="absolute inset-0 z-50 bg-slate-50/60 backdrop-blur-[4px] flex flex-col items-center justify-center p-6 text-center">
+               <div className="w-20 h-20 bg-white rounded-3xl shadow-xl flex items-center justify-center text-slate-300 mb-6 border border-slate-100">
+                  <BarChart3 className="w-10 h-10" />
+               </div>
+               <h2 className="text-lg font-black text-slate-800 mb-2">未生成该时段报告</h2>
+               <p className="text-xs text-slate-400 font-bold mb-8 max-w-[200px] leading-relaxed">
+                  需要至少 3 天的有效生理指标监测数据才能生成 AI 深度健康评估报告。
+               </p>
+               <Link 
+                  to="/bind" 
+                  className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-black text-sm shadow-xl flex items-center gap-2 active:scale-95 transition-all"
+               >
+                  <Plus className="w-5 h-5 text-brand-blue" />
+                  <span>立即绑定并同步</span>
+               </Link>
+            </div>
+          )}
+
           {/* Executive Summary Card */}
           <div className="p-6">
             <motion.div 
@@ -105,37 +137,103 @@ export default function HealthReport() {
               className="bg-white rounded-[32px] p-6 border border-border-base shadow-sm mb-6"
             >
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <h2 className="text-sm font-black text-text-main uppercase tracking-widest">总体评分: 优 (92/100)</h2>
+                <div className={`w-2 h-2 rounded-full ${hasRobotBound ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`} />
+                <h2 className="text-sm font-black text-text-main uppercase tracking-widest">
+                  总体评分: {hasRobotBound ? '优 (92/100)' : '资料缺失 (-/-)'}
+                </h2>
               </div>
               
               <div className="grid grid-cols-3 gap-3 mb-6">
                 <div className="bg-slate-50 rounded-2xl p-4 text-center">
                   <p className="text-[9px] font-bold text-text-muted mb-1">生命体征</p>
-                  <p className="text-lg font-black text-emerald-500">稳健</p>
+                  <p className={`text-lg font-black ${hasRobotBound ? 'text-emerald-500' : 'text-slate-300'}`}>{hasRobotBound ? '稳健' : '-'}</p>
                 </div>
                 <div className="bg-slate-50 rounded-2xl p-4 text-center">
                   <p className="text-[9px] font-bold text-text-muted mb-1">服药依从</p>
-                  <p className="text-lg font-black text-emerald-500">97%</p>
+                  <p className={`text-lg font-black ${hasRobotBound ? 'text-emerald-500' : 'text-slate-300'}`}>{hasRobotBound ? '97%' : '-'}</p>
                 </div>
                 <div className="bg-slate-50 rounded-2xl p-4 text-center">
                   <p className="text-[9px] font-bold text-text-muted mb-1">风险系数</p>
-                  <p className="text-lg font-black text-blue-500">低</p>
+                  <p className={`text-lg font-black ${hasRobotBound ? 'text-blue-500' : 'text-slate-300'}`}>{hasRobotBound ? '低' : '-'}</p>
                 </div>
               </div>
 
-              <div className="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-4">
+              <div className={`rounded-2xl p-4 ${hasRobotBound ? 'bg-emerald-50/50 border border-emerald-100' : 'bg-slate-50 border border-slate-100'}`}>
                 <div className="flex items-center gap-2 mb-2">
-                  <Zap className="w-3 h-3 text-emerald-600 fill-emerald-600" />
-                  <span className="text-[10px] font-black text-emerald-700 uppercase tracking-widest">核心结论</span>
+                  <Zap className={`w-3 h-3 ${hasRobotBound ? 'text-emerald-600 fill-emerald-600' : 'text-slate-400'}`} />
+                  <span className={`text-[10px] font-black uppercase tracking-widest ${hasRobotBound ? 'text-emerald-700' : 'text-slate-400'}`}>核心结论</span>
                 </div>
-                <p className="text-xs leading-relaxed text-emerald-900/80 font-medium tracking-tight">
-                  {isWeekly 
-                    ? '本周患者各项指标表现优异。血压均值 122/78mmHg 处于健康区间。睡眠质量有所提升，平均深度睡眠占比增加 15%。建议继续保持当前的饮食与运动节奏。'
-                    : '4月度总体指标稳中向好。心率变异性(HRV)指标较上月提升 8%，显示自主神经系统功能恢复。需注意月底由于气候变迁引起的轻微晨间血压波动。'}
+                <p className={`text-xs leading-relaxed font-medium tracking-tight ${hasRobotBound ? 'text-emerald-900/80' : 'text-slate-400'}`}>
+                  {hasRobotBound ? (
+                    isWeekly 
+                      ? '本周患者各项指标表现优异。血压均值 122/78 处于健康区间。睡眠质量有所提升，平均深度睡眠占比增加 15%。建议继续保持当前的饮食与运动节奏。'
+                      : '4月度总体指标稳中向好。心率变异性指标较上月提升 8%，显示自主神经系统功能恢复。需注意月底由于气候变迁引起的轻微晨间血压波动。'
+                  ) : '由于缺乏连续的设备监测数据，系统无法生成本时段的核心健康评估结论。'}
                 </p>
               </div>
             </motion.div>
+
+            {/* NEW: Environmental & Predictive Analysis Segment */}
+            <AnimatePresence>
+              {hasRobotBound && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-white rounded-[32px] p-6 border border-border-base shadow-sm mb-6"
+                >
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                        <BrainCircuit className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="font-black text-text-main">AI 环境关联风险预判</h3>
+                        <p className="text-[10px] text-text-muted font-bold tracking-widest uppercase">环境风险关联分析</p>
+                      </div>
+                    </div>
+                    <div className="bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
+                      <span className="text-[9px] font-black text-emerald-600 uppercase">系统置信度 96%</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 mb-6">
+                    <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                      <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center text-orange-400 shrink-0 shadow-sm">
+                        <Thermometer className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-[10px] font-black text-text-main mb-1">温湿关联分析</p>
+                        <p className="text-[11px] leading-relaxed text-text-muted font-medium">
+                          本周期室内平均湿度上升 15%，系统监测到患者夜间呼吸深浅度随之出现 8.4% 的波动相关性。已锁定“潮湿诱发呼吸负荷”为潜在风险因子。
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                      <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center text-blue-400 shrink-0 shadow-sm">
+                        <Wind className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-[10px] font-black text-text-main mb-1">空气质量前瞻</p>
+                        <p className="text-[11px] leading-relaxed text-text-muted font-medium">
+                          预测下周花粉指数将达“中高”级别。AI 建议：5月4日-5月8日期间，机器人将自动关闭卧室新风至内循环模式，预防过敏性哮喘风险。
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-indigo-50/50 rounded-2xl p-4 border border-indigo-100">
+                     <div className="flex justify-between items-center mb-3">
+                        <span className="text-[10px] font-black text-indigo-700 uppercase tracking-tight">下周期稳定性预测展望</span>
+                        <span className="text-[10px] font-black text-indigo-700">预估 88/100</span>
+                     </div>
+                     <div className="h-1.5 bg-indigo-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-indigo-500 w-[88%] rounded-full shadow-[0_0_8px_rgba(99,102,241,0.4)]" />
+                     </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Metrics Breakdown */}
             <div className="space-y-6">
@@ -148,7 +246,7 @@ export default function HealthReport() {
                     </div>
                     <div>
                       <h3 className="font-black text-text-main">心率健康分析</h3>
-                      <p className="text-[10px] text-text-muted font-bold tracking-widest uppercase">HEART RATE DYNAMIC</p>
+                      <p className="text-[10px] text-text-muted font-bold tracking-widest uppercase">心率动态监测</p>
                     </div>
                   </div>
                   <div className="text-right">
@@ -186,11 +284,11 @@ export default function HealthReport() {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
                     <span className="text-[10px] font-bold text-text-muted">静息心率均值</span>
-                    <span className="text-xs font-black text-text-main">68 BPM</span>
+                    <span className="text-xs font-black text-text-main">68 次/分</span>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
                     <span className="text-[10px] font-bold text-text-muted">最高运动心率</span>
-                    <span className="text-xs font-black text-text-main">112 BPM</span>
+                    <span className="text-xs font-black text-text-main">112 次/分</span>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-rose-50 border border-rose-100 rounded-xl">
                     <div className="flex items-center gap-2">
@@ -210,7 +308,7 @@ export default function HealthReport() {
                     </div>
                     <div>
                       <h3 className="font-black text-text-main">日常状态分布</h3>
-                      <p className="text-[10px] text-text-muted font-bold tracking-widest uppercase">DAILY STATUS RANGE</p>
+                      <p className="text-[10px] text-text-muted font-bold tracking-widest uppercase">状态区间统计</p>
                     </div>
                 </div>
 
@@ -262,7 +360,7 @@ export default function HealthReport() {
                     </div>
                     <div>
                       <h3 className="font-black text-text-main">服药计划完成度</h3>
-                      <p className="text-[10px] text-text-muted font-bold tracking-widest uppercase">MEDICATION COMPLIANCE</p>
+                      <p className="text-[10px] text-text-muted font-bold tracking-widest uppercase">依从性健康预测</p>
                     </div>
                   </div>
                 </div>
@@ -305,7 +403,7 @@ export default function HealthReport() {
                     </div>
                     <div>
                       <h3 className="text-lg font-black tracking-tight">AI 深度健康策略</h3>
-                      <p className="text-[9px] font-black uppercase text-brand-blue/80 tracking-widest leading-none mt-1">GENERATIVE CARE INSIGHTS</p>
+                      <p className="text-[9px] font-black uppercase text-brand-blue/80 tracking-widest leading-none mt-1">生成式护理洞察</p>
                     </div>
                   </div>
 

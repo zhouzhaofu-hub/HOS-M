@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Layout } from '../components/Layout';
-import { MOCK_USER, MOCK_ROBOT, MOCK_HEALTH } from '../constants';
+import { MOCK_USER, MOCK_ROBOT } from '../constants';
 import { Avatar } from '../components/Avatar';
 import { 
   Bell, 
@@ -21,21 +21,24 @@ import {
   Lightbulb,
   Share2,
   BellRing,
-  X
+  X,
+  Plus
 } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
+import { useAppContext } from '../context/AppContext';
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { hasRobotBound } = useAppContext();
   const [activeTab, setActiveTab] = useState('daily');
-  const [showAlert, setShowAlert] = useState(true);
+  const [showAlert, setShowAlert] = useState(hasRobotBound); // Only show if bound
 
   return (
     <Layout>
       {/* System Alert Overlay */}
       <AnimatePresence>
-        {showAlert && (
+        {hasRobotBound && showAlert && (
           <motion.div
             initial={{ opacity: 0, y: -100 }}
             animate={{ opacity: 1, y: 0 }}
@@ -104,73 +107,112 @@ export default function Dashboard() {
 
       <div className="px-6 space-y-6 pt-6 pb-12 bg-white">
         {/* Robot Status Card */}
-        <div className="bg-slate-50/50 rounded-[32px] p-5 border border-border-base">
+        <div className="bg-slate-50/50 rounded-[32px] p-5 border border-border-base relative overflow-hidden">
+          {!hasRobotBound && (
+            <div className="absolute inset-0 z-10 bg-white/40 backdrop-blur-[2px] flex items-center justify-center">
+              <Link 
+                to="/bind" 
+                className="bg-brand-blue text-white px-6 py-3 rounded-2xl font-black text-xs shadow-lg shadow-brand-blue/20 flex items-center gap-2 active:scale-95 transition-all"
+              >
+                <Plus className="w-4 h-4" />
+                <span>立即绑定智护设备</span>
+              </Link>
+            </div>
+          )}
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-brand-blue border border-border-base shadow-sm">
                 <RobotIcon className="w-7 h-7" />
               </div>
               <div>
-                <h3 className="font-black text-text-main text-base tracking-tight">{MOCK_ROBOT.name}</h3>
+                <h3 className="font-black text-text-main text-base tracking-tight">
+                  {hasRobotBound ? MOCK_ROBOT.name : '未绑定设备'}
+                </h3>
                 <div className="flex items-center gap-1.5 mt-0.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-[10px] text-emerald-600 font-black uppercase tracking-widest">{MOCK_ROBOT.location} · 在线</span>
+                  <div className={`w-1.5 h-1.5 rounded-full ${hasRobotBound ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`} />
+                  <span className={`text-[10px] font-black uppercase tracking-widest ${hasRobotBound ? 'text-emerald-600' : 'text-slate-400'}`}>
+                    {hasRobotBound ? `${MOCK_ROBOT.location} · 在线` : '离线'}
+                  </span>
                 </div>
               </div>
             </div>
             <div className="bg-white px-2.5 py-1 rounded-xl flex items-center gap-1.5 border border-border-base shadow-sm">
-              <Battery className="w-3.5 h-3.5 text-emerald-500" />
-              <span className="text-[10px] font-black text-text-main tabular-nums">{MOCK_ROBOT.battery}%</span>
+              <Battery className={`w-3.5 h-3.5 ${hasRobotBound ? 'text-emerald-500' : 'text-slate-300'}`} />
+              <span className="text-[10px] font-black text-text-main tabular-nums">
+                {hasRobotBound ? `${MOCK_ROBOT.battery}%` : '--'}
+              </span>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <Link to="/control" className="bg-white border border-border-base text-text-main py-3 rounded-2xl flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-widest active:scale-95 transition-transform shadow-sm">
-              <Video className="w-4 h-4 text-brand-blue" />
+          <div className="grid grid-cols-2 gap-3 opacity-90">
+            <Link 
+              to={hasRobotBound ? "/control" : "#"} 
+              className={`bg-white border border-border-base text-text-main py-3 rounded-2xl flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-widest active:scale-95 transition-transform shadow-sm ${!hasRobotBound && 'opacity-50 cursor-not-allowed'}`}
+            >
+              <Video className={`w-4 h-4 ${hasRobotBound ? 'text-brand-blue' : 'text-slate-300'}`} />
               <span>实时视频</span>
             </Link>
-            <button className="bg-white border border-border-base text-text-main py-3 rounded-2xl flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-widest active:scale-95 transition-transform shadow-sm">
-              <MapPin className="w-4 h-4 text-orange-500" />
+            <button 
+              disabled={!hasRobotBound}
+              className={`bg-white border border-border-base text-text-main py-3 rounded-2xl flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-widest active:scale-95 transition-transform shadow-sm ${!hasRobotBound && 'opacity-50 cursor-not-allowed'}`}
+            >
+              <MapPin className={`w-4 h-4 ${hasRobotBound ? 'text-orange-500' : 'text-slate-300'}`} />
               <span>自动归位</span>
             </button>
           </div>
         </div>
 
-        {/* New Health Summary Section */}
+        {/* Health Summary Section */}
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <h3 className="text-[11px] font-black text-text-main uppercase tracking-widest opacity-60">今日健康摘要</h3>
-            <span className="text-[9px] font-bold text-text-muted">更新于 09:30</span>
+            <span className="text-[9px] font-bold text-text-muted">
+              {hasRobotBound ? '更新于 09:30' : '暂无同步数据'}
+            </span>
           </div>
           
           <div className="grid grid-cols-2 gap-3">
-            <Link to="/health?metric=heart" className="bg-white border border-border-base rounded-[32px] p-5 active:scale-[0.98] transition-all shadow-sm">
+            <Link 
+              to={hasRobotBound ? "/health?metric=heart" : "#"} 
+              className="bg-white border border-border-base rounded-[32px] p-5 active:scale-[0.98] transition-all shadow-sm block"
+            >
               <div className="flex items-center justify-between mb-4">
                 <div className="w-8 h-8 rounded-xl bg-rose-50 flex items-center justify-center text-rose-500">
                    <Heart className="w-4 h-4" />
                 </div>
-                <div className="bg-emerald-50 px-2 py-0.5 rounded-lg text-emerald-600 text-[8px] font-black uppercase">
-                  正常
-                </div>
+                {hasRobotBound && (
+                  <div className="bg-emerald-50 px-2 py-0.5 rounded-lg text-emerald-600 text-[8px] font-black uppercase">
+                    正常
+                  </div>
+                )}
               </div>
               <p className="text-[10px] font-bold text-text-muted uppercase tracking-tight mb-1">平均心率</p>
               <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-black text-text-main tabular-nums">72</span>
+                <span className="text-2xl font-black text-text-main tabular-nums">
+                  {hasRobotBound ? '72' : '-'}
+                </span>
                 <span className="text-[9px] font-bold text-text-muted">BPM</span>
               </div>
             </Link>
 
-            <Link to="/health?metric=sleep" className="bg-white border border-border-base rounded-[32px] p-5 active:scale-[0.98] transition-all shadow-sm">
+            <Link 
+              to={hasRobotBound ? "/health?metric=sleep" : "#"} 
+              className="bg-white border border-border-base rounded-[32px] p-5 active:scale-[0.98] transition-all shadow-sm block"
+            >
               <div className="flex items-center justify-between mb-4">
                 <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-500">
                    <Moon className="w-4 h-4" />
                 </div>
-                <div className="bg-indigo-50 px-2 py-0.5 rounded-lg text-indigo-600 text-[8px] font-black uppercase">
-                  优质
-                </div>
+                {hasRobotBound && (
+                  <div className="bg-indigo-50 px-2 py-0.5 rounded-lg text-indigo-600 text-[8px] font-black uppercase">
+                    优质
+                  </div>
+                )}
               </div>
               <p className="text-[10px] font-bold text-text-muted uppercase tracking-tight mb-1">睡眠时长</p>
               <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-black text-text-main tabular-nums">7.4</span>
+                <span className="text-2xl font-black text-text-main tabular-nums">
+                  {hasRobotBound ? '7.4' : '-'}
+                </span>
                 <span className="text-[9px] font-bold text-text-muted">H</span>
               </div>
             </Link>
@@ -220,25 +262,31 @@ export default function Dashboard() {
                 <div className="grid grid-cols-4 divide-x divide-slate-100">
                    <div className="flex flex-col items-center px-1">
                       <p className="text-[10px] font-bold text-text-muted mb-2">今日步数</p>
-                      <p className="text-base font-black text-text-main mb-1">2,340</p>
-                      <div className="flex items-center gap-0.5 text-emerald-500 text-[8px] font-black uppercase">
-                         <span className="text-[9px] leading-none">√</span> 达标
+                      <p className="text-base font-black text-text-main mb-1">{hasRobotBound ? '2,340' : '-'}</p>
+                      <div className={`flex items-center gap-0.5 text-[8px] font-black uppercase ${hasRobotBound ? 'text-emerald-500' : 'text-slate-300'}`}>
+                         <span className="text-[9px] leading-none">{hasRobotBound ? '√' : '-'}</span> {hasRobotBound ? '达标' : '离线'}
                       </div>
                    </div>
                    <div className="flex flex-col items-center px-1">
                       <p className="text-[10px] font-bold text-text-muted mb-2">血压</p>
-                      <p className="text-base font-black text-text-main mb-1">118/76</p>
-                      <p className="text-[8px] font-black text-emerald-500 uppercase tracking-tighter">血压正常 (mmHg)</p>
+                      <p className="text-base font-black text-text-main mb-1">{hasRobotBound ? '118/76' : '-'}</p>
+                      <p className={`text-[8px] font-black uppercase tracking-tighter ${hasRobotBound ? 'text-emerald-500' : 'text-slate-300'}`}>
+                        {hasRobotBound ? '血压正常' : '未监测'} (mmHg)
+                      </p>
                    </div>
                    <div className="flex flex-col items-center px-1">
                       <p className="text-[10px] font-bold text-text-muted mb-2">血糖</p>
-                      <p className="text-base font-black text-text-main mb-1">5.4</p>
-                      <p className="text-[8px] font-black text-emerald-500 uppercase tracking-tighter">血糖正常 (mmol/L)</p>
+                      <p className="text-base font-black text-text-main mb-1">{hasRobotBound ? '5.4' : '-'}</p>
+                      <p className={`text-[8px] font-black uppercase tracking-tighter ${hasRobotBound ? 'text-emerald-500' : 'text-slate-300'}`}>
+                        {hasRobotBound ? '血糖正常' : '未监测'} (mmol/L)
+                      </p>
                    </div>
                    <div className="flex flex-col items-center px-1">
                       <p className="text-[10px] font-bold text-text-muted mb-2">服药</p>
-                      <p className="text-base font-black text-text-main mb-1">100%</p>
-                      <p className="text-[8px] font-black text-brand-blue uppercase tracking-tighter">已确认</p>
+                      <p className="text-base font-black text-text-main mb-1">{hasRobotBound ? '100%' : '-'}</p>
+                      <p className={`text-[8px] font-black uppercase tracking-tighter ${hasRobotBound ? 'text-brand-blue' : 'text-slate-300'}`}>
+                        {hasRobotBound ? '已确认' : '未记录'}
+                      </p>
                    </div>
                 </div>
               </motion.div>
@@ -259,18 +307,26 @@ export default function Dashboard() {
                   <div className="grid grid-cols-3 gap-2">
                     <div className="bg-white p-3 rounded-xl border border-border-base text-center">
                       <p className="text-[9px] font-bold text-text-muted mb-1">血压均值</p>
-                      <p className="text-sm font-black text-text-main">122/78</p>
-                      <p className="text-[8px] font-bold text-emerald-500 mt-1">达标</p>
+                      <p className="text-sm font-black text-text-main">{hasRobotBound ? '122/78' : '-'}</p>
+                      <p className={`text-[8px] font-bold mt-1 ${hasRobotBound ? 'text-emerald-500' : 'text-slate-300'}`}>
+                        {hasRobotBound ? '达标' : '无数据'}
+                      </p>
                     </div>
                     <div className="bg-white p-3 rounded-xl border border-border-base text-center">
                       <p className="text-[9px] font-bold text-text-muted mb-1">血糖均值</p>
-                      <p className="text-sm font-black text-text-main">5.6</p>
-                      <p className="text-[8px] font-bold text-emerald-500 mt-1">达标</p>
+                      <p className="text-sm font-black text-text-main">{hasRobotBound ? '5.6' : '-'}</p>
+                      <p className={`text-[8px] font-bold mt-1 ${hasRobotBound ? 'text-emerald-500' : 'text-slate-300'}`}>
+                        {hasRobotBound ? '达标' : '无数据'}
+                      </p>
                     </div>
                     <div className="bg-white p-3 rounded-xl border border-border-base text-center">
                       <p className="text-[9px] font-bold text-text-muted mb-1">异常次数</p>
-                      <p className="text-sm font-black text-rose-500">{activeTab === 'weekly' ? '2' : '5'}</p>
-                      <p className="text-[8px] font-bold text-rose-400 mt-1">需关注</p>
+                      <p className={`text-sm font-black ${hasRobotBound ? 'text-rose-500' : 'text-slate-300'}`}>
+                        {hasRobotBound ? (activeTab === 'weekly' ? '2' : '5') : '0'}
+                      </p>
+                      <p className={`text-[8px] font-bold mt-1 ${hasRobotBound ? 'text-rose-400' : 'text-slate-300'}`}>
+                        {hasRobotBound ? '需关注' : '无预警'}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -284,33 +340,35 @@ export default function Dashboard() {
                   <div className="space-y-3">
                     <div className="flex justify-between items-center text-[10px] font-bold">
                       <span className="text-text-muted">用药按时率</span>
-                      <span className="text-text-main">98%</span>
+                      <span className="text-text-main">{hasRobotBound ? '98%' : '-'}</span>
                     </div>
                     <div className="h-1.5 bg-white rounded-full overflow-hidden border border-border-base">
-                      <div className="h-full bg-emerald-500 w-[98%]"></div>
+                      <div className={`h-full bg-emerald-500 transition-all duration-1000 ${hasRobotBound ? 'w-[98%]' : 'w-0'}`}></div>
                     </div>
                     <div className="flex justify-between items-center text-[10px] font-bold">
                       <span className="text-text-muted">测量完成率</span>
-                      <span className="text-text-main">92%</span>
+                      <span className="text-text-main">{hasRobotBound ? '92%' : '-'}</span>
                     </div>
                     <div className="h-1.5 bg-white rounded-full overflow-hidden border border-border-base">
-                      <div className="h-full bg-brand-blue w-[92%]"></div>
+                      <div className={`h-full bg-brand-blue transition-all duration-1000 ${hasRobotBound ? 'w-[92%]' : 'w-0'}`}></div>
                     </div>
                   </div>
                 </div>
 
                 {/* Health Advice */}
-                <div className="geo-card border-none bg-emerald-50/50 p-5 rounded-2xl border border-emerald-100">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Lightbulb className="w-4 h-4 text-emerald-600" />
-                    <h4 className="text-xs font-black text-emerald-600 uppercase tracking-tight">AI 健康建议</h4>
+                  <div className={`geo-card border-none p-5 rounded-2xl border ${hasRobotBound ? 'bg-emerald-50/50 border-emerald-100' : 'bg-slate-50 border-slate-100'}`}>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Lightbulb className={`w-4 h-4 ${hasRobotBound ? 'text-emerald-600' : 'text-slate-400'}`} />
+                      <h4 className={`text-xs font-black uppercase tracking-tight ${hasRobotBound ? 'text-emerald-600' : 'text-slate-400'}`}>AI 健康建议</h4>
+                    </div>
+                    <p className={`text-[11px] leading-relaxed font-medium tracking-tight ${hasRobotBound ? 'text-emerald-800' : 'text-slate-400'}`}>
+                      {hasRobotBound ? (
+                        activeTab === 'weekly' 
+                          ? '本周血压在早晨时段有波动，建议监测晨起第一次服药后的反应，并减少晚餐盐分摄入。' 
+                          : '本月整体指标趋稳，但深度睡眠时长相比上月缩短12%，建议改善睡前环境亮度。'
+                      ) : '您尚未绑定智护机器人，AI 无法根据实时监测数据生成个性化健康建议。'}
+                    </p>
                   </div>
-                  <p className="text-[11px] leading-relaxed text-emerald-800 font-medium tracking-tight">
-                    {activeTab === 'weekly' 
-                      ? '本周血压在早晨时段有波动，建议监测晨起第一次服药后的反应，并减少晚餐盐分摄入。' 
-                      : '本月整体指标趋稳，但深度睡眠时长相比上月缩短12%，建议改善睡前环境亮度。'}
-                  </p>
-                </div>
 
                 {/* Doctor Sharing */}
                 <button 

@@ -20,6 +20,19 @@ export interface HealthData {
   complianceRating: number;
 }
 
+export interface ServiceOwner {
+  id: string;
+  name: string;
+  avatar: string;
+  age: number;
+  bloodType: string;
+  phone: string;
+  address: string;
+  medicalHistory: string;
+  medicalRecord: string;
+  isDefault: boolean;
+}
+
 export interface Message {
   id: string;
   type: 'alert' | 'health' | 'log' | 'system';

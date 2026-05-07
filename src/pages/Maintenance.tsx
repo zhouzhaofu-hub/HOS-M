@@ -132,7 +132,7 @@ export default function Maintenance() {
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-black text-amber-900">视觉传感器维护</p>
-                  <p className="text-[10px] text-amber-700 font-medium leading-relaxed mt-1">前置避障摄像头检测到轻微油污，可能会影响自动巡航精准度，建议联系老人擦拭。</p>
+                  <p className="text-[10px] text-amber-700 font-medium leading-relaxed mt-1">前置避障摄像头检测到轻微油污，可能会影响自动巡航精准度，建议联系主人擦拭。</p>
                 </div>
               </div>
             </motion.div>

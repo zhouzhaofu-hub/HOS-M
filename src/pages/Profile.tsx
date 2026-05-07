@@ -7,6 +7,7 @@ import {
   ChevronDown, 
   UserPlus, 
   Cpu, 
+  Settings,
   FileText, 
   MessageSquare, 
   ShieldCheck, 
@@ -56,14 +57,19 @@ export default function Profile() {
           {/* Group 2: Devices & Owner */}
           <div className="bg-white divide-y divide-slate-100">
              <WeChatListItem 
-               to="/robot-settings"
+               to="/bind"
                icon={<Cpu className="w-5 h-5 text-[#07c160]" />} 
+               label="设备与绑定" 
+             />
+             <WeChatListItem 
+               to="/robot-settings"
+               icon={<Settings className="w-5 h-5 text-slate-500" />} 
                label="机器人配置" 
              />
              <WeChatListItem 
                to="/elderly-profile"
                icon={<FileText className="w-5 h-5 text-[#2782d7]" />} 
-               label="主人档案" 
+               label="服务主人档案" 
              />
           </div>
 

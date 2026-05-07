@@ -26,10 +26,9 @@ import AlertDetail from './pages/AlertDetail';
 import HealthReport from './pages/HealthReport';
 
 const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isLoggedIn, hasRobotBound } = useAppContext();
+  const { isLoggedIn } = useAppContext();
   
   if (!isLoggedIn) return <Navigate to="/login" replace />;
-  if (!hasRobotBound) return <Navigate to="/bind" replace />;
   
   return <>{children}</>;
 };

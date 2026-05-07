@@ -19,7 +19,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           }
         >
           <Home className="w-5 h-5" fill="currentColor" fillOpacity={0} />
-          <span className="text-[10px] font-black uppercase tracking-widest leading-none">首页</span>
+          <span className="text-[12px] font-bold leading-none">首页</span>
         </NavLink>
         
         <NavLink
@@ -29,7 +29,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           }
         >
           <Gamepad2 className="w-5 h-5" />
-          <span className="text-[10px] font-black uppercase tracking-widest leading-none">控制</span>
+          <span className="text-[12px] font-bold leading-none">控制</span>
         </NavLink>
         
         <NavLink
@@ -39,7 +39,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           }
         >
           <Activity className="w-5 h-5" />
-          <span className="text-[10px] font-black uppercase tracking-widest leading-none">健康</span>
+          <span className="text-[12px] font-bold leading-none">健康</span>
         </NavLink>
         
         <NavLink
@@ -49,7 +49,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           }
         >
           <User className="w-5 h-5" />
-          <span className="text-[10px] font-black uppercase tracking-widest leading-none">我的</span>
+          <span className="text-[12px] font-bold leading-none">我的</span>
         </NavLink>
       </nav>
 
