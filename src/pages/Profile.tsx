@@ -17,15 +17,24 @@ import {
 } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
+import { auth } from '../firebase';
+import { signOut } from 'firebase/auth';
+import { useAppContext } from '../context/AppContext';
 
 export default function Profile() {
   const navigate = useNavigate();
-  const [userName, setUserName] = useState('王大力');
+  const { user } = useAppContext();
+  const [userName, setUserName] = useState(user?.displayName || '智护用户');
   const [isEditing, setIsEditing] = useState(false);
-  const [tempName, setTempName] = useState('王大力');
+  const [tempName, setTempName] = useState(user?.displayName || '');
 
-  const handleLogout = () => {
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate('/login');
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   const handleSaveName = () => {
@@ -40,7 +49,7 @@ export default function Profile() {
       <div className="flex flex-col h-full bg-[#f2f2f2]">
         <div className="flex-1 overflow-y-auto scrollbar-hide pb-20">
           
-          {/* User Profile Header - WeChat Style */}
+          {/* 用户基础信息卡片 - 类似微信风格 */}
           <div 
             onClick={() => {
               setIsEditing(true);
@@ -49,12 +58,14 @@ export default function Profile() {
             className="bg-white px-6 pt-16 pb-8 flex items-center gap-5 active:bg-slate-50 transition-colors cursor-pointer"
           >
             <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-100 shrink-0 shadow-sm border border-slate-100">
-              <Avatar src={MOCK_USER.avatar} className="w-full h-full" />
+              {/* 使用用户的头像，如果不存在则显示默认头像 */}
+              <Avatar src={user?.photoURL || MOCK_USER.avatar} className="w-full h-full" />
             </div>
             <div className="flex-1 min-w-0">
               <h2 className="text-xl font-bold text-text-main tracking-tight truncate">{userName}</h2>
               <div className="flex items-center justify-between mt-1">
-                <p className="text-sm text-text-muted">智护账号: WD_889230</p>
+                {/* 显示脱敏后的 UID 模拟账号 */}
+                <p className="text-sm text-text-muted">智护账号: {user?.uid.slice(-8).toUpperCase()}</p>
                 <ChevronRight className="w-5 h-5 text-slate-300" />
               </div>
             </div>
@@ -62,60 +73,61 @@ export default function Profile() {
 
           <div className="h-2" />
 
-          {/* Group 1: Home & Family */}
+          {/* 分组一：家庭与分享 */}
           <div className="bg-white divide-y divide-slate-100">
              <WeChatListItem 
                to="/family-sharing"
-               icon={<UserPlus className="w-5 h-5 text-[#ff9c01]" />} 
+               icon={<span className="text-xl">👥</span>} 
                label="家人分享" 
              />
           </div>
 
           <div className="h-2" />
 
-          {/* Group 2: Devices & Owner */}
+          {/* 分组二：设备与档案 */}
           <div className="bg-white divide-y divide-slate-100">
              <WeChatListItem 
                to="/bind"
-               icon={<Cpu className="w-5 h-5 text-[#07c160]" />} 
+               icon={<span className="text-xl">🤖</span>} 
                label="设备与绑定" 
              />
              <WeChatListItem 
                to="/robot-settings"
-               icon={<Settings className="w-5 h-5 text-slate-500" />} 
+               icon={<span className="text-xl">⚙️</span>} 
                label="机器人配置" 
              />
              <WeChatListItem 
                to="/elderly-profile"
-               icon={<FileText className="w-5 h-5 text-[#2782d7]" />} 
+               icon={<span className="text-xl">📋</span>} 
                label="服务主人档案" 
              />
           </div>
 
           <div className="h-2" />
 
-          {/* Group 3: System & Security */}
+          {/* 分组三：系统与安全 */}
           <div className="bg-white divide-y divide-slate-100">
              <WeChatListItem 
                to="/messages"
-               icon={<MessageSquare className="w-5 h-5 text-[#fa5151]" />} 
+               icon={<span className="text-xl">💬</span>} 
                label="消息记录" 
              />
              <WeChatListItem 
                to="/security"
-               icon={<ShieldCheck className="w-5 h-5 text-[#fa9d3b]" />} 
+               icon={<span className="text-xl">🛡️</span>} 
                label="隐私与安全" 
              />
           </div>
 
           <div className="h-2" />
 
-          {/* Group 4: Logout */}
+          {/* 分组四：退出登录 */}
           <div className="bg-white">
             <button 
               onClick={handleLogout}
-              className="w-full py-4 text-center text-text-main text-[16px] font-medium active:bg-slate-50 transition-colors"
+              className="w-full py-4 text-center text-red-500 text-[16px] font-medium active:bg-slate-50 transition-colors flex items-center justify-center gap-2"
             >
+              <span className="text-xl">🚪</span>
               退出登录
             </button>
           </div>

@@ -12,6 +12,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [loginMode, setLoginMode] = useState<'password' | 'sms'>('password');
   const [showAgreement, setShowAgreement] = useState<'service' | 'privacy' | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (authLoaded && user) {
@@ -19,78 +20,100 @@ export default function Login() {
     }
   }, [authLoaded, user, navigate]);
 
+  // 处理谷歌登录
   const handleGoogleLogin = async () => {
     setLoading(true);
+    setErrorMessage(null);
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
       navigate('/');
     } catch (e) {
       console.error("Google logic error: ", e);
-      alert('登录失败，请重试');
+      setErrorMessage('谷歌登录失败，请检查网络并重试');
     } finally {
       setLoading(false);
     }
   };
 
+  // 处理苹果登录
   const handleAppleLogin = async () => {
     setLoading(true);
+    setErrorMessage(null);
     const provider = new OAuthProvider('apple.com');
     try {
       await signInWithPopup(auth, provider);
       navigate('/');
     } catch (e) {
       console.error("Apple login error: ", e);
-      alert('苹果登录失败，请重试');
+      setErrorMessage('苹果登录失败，请重试');
     } finally {
       setLoading(false);
     }
   };
 
+  // 模拟微信登录
   const handleWechatLogin = async () => {
     setLoading(true);
-    // Since WeChat isn't natively supported by standard Firebase popup without custom backend
-    // We will simulate a login or fallback to anonymous login for demo purposes.
+    setErrorMessage(null);
     try {
       await signInAnonymously(auth);
       navigate('/');
     } catch (e) {
       console.error("Wechat login error: ", e);
-      alert('微信登录失败，请重试');
+      setErrorMessage('微信登录失败，请重试');
     } finally {
       setLoading(false);
     }
   };
 
+  // 匿名登录 (演示用)
   const handleAnonymousLogin = async () => {
     setLoading(true);
+    setErrorMessage(null);
     try {
       await signInAnonymously(auth);
       navigate('/');
     } catch (e) {
       console.error(e);
-      alert('登录失败');
+      setErrorMessage('登录失败，无法连接到认证服务器');
     } finally {
       setLoading(false);
     }
   }
 
   if (!authLoaded) {
-    return <div className="flex h-full items-center justify-center bg-white"><div className="w-8 h-8 border-4 border-brand-blue border-t-transparent rounded-full animate-spin"></div></div>;
+    return (
+      <div className="flex h-full items-center justify-center bg-white">
+        <div className="w-8 h-8 border-4 border-brand-blue border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
   }
 
   return (
     <div className="flex flex-col h-full bg-white px-8 pt-16 relative">
       <div className="flex-1 flex flex-col items-center">
+        {/* 应用 Logo - 使用表情符号替代 SVG */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           className="w-24 h-24 bg-brand-blue rounded-3xl flex items-center justify-center mb-6 shadow-xl shadow-brand-blue/20"
         >
-          <Bot className="text-white w-12 h-12" />
+          <span className="text-5xl">🤖</span>
         </motion.div>
         
         <h1 className="text-3xl font-black text-text-main tracking-tight">智护OS v1.0</h1>
+
+        {/* 错误提示区域 */}
+        {errorMessage && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full mt-4 p-3 bg-red-50 text-red-500 text-xs font-bold rounded-xl border border-red-100 flex items-center gap-2"
+          >
+            <span>⚠️</span> {errorMessage}
+          </motion.div>
+        )}
 
         {/* Login Mode Tabs */}
         <div className="w-full flex bg-slate-50 p-1 rounded-2xl mt-12 mb-6">
