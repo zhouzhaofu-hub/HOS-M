@@ -174,10 +174,10 @@ export default function Profile() {
                   />
                 </div>
                 
-                <p className="mt-4 text-[11px] text-slate-400 font-medium px-1 flex items-start gap-2">
+                <div className="mt-4 text-[11px] text-slate-400 font-medium px-1 flex items-start gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-brand-blue mt-1 shrink-0" />
                   姓名将用于家人分享与紧急预警时的身份识别。
-                </p>
+                </div>
 
                 <div className="mt-8 flex gap-3">
                   <button 

@@ -94,14 +94,17 @@ interface AppContextType {
 const DEFAULT_OWNERS: ServiceOwner[] = [
   {
     id: '1',
-    name: '王大爷',
+    name: '周大爷',
     avatar: 'https://images.unsplash.com/photo-1544144433-d5075fcd5f3c?w=200&h=200&fit=crop',
     age: 72,
     bloodType: 'A型血',
     phone: '139 **** 8888',
     address: '东城区平安里 12号',
-    medicalHistory: '高血压（II级）、冠心病二级',
-    medicalRecord: '体检：2026.03.15',
+    medicalHistory: '2018-03-20 冠心病 (控制稳定/日常配药)',
+    chronicDisease: '高血压 (I10) · 确诊 2020-05-10 · 控制良好 · 随访每月1次',
+    allergies: '药物：青霉素 (皮疹) · 轻度 · 确认人：王医生',
+    evaluation: 'ADL评 85分 · 跌倒风险：低 · 营养：良好 · 认知：正常 · 情绪：平稳',
+    medicalRecord: '硝苯地平缓释片 1片/次/日；每日清晨站立平衡运动 15分钟',
     isDefault: true
   }
 ];
@@ -152,7 +155,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setAuthLoaded(true);
 
       if (u) {
-        // 确保用户文档存在，如果不存在则初始化
+        // 确保用户文档存在，如果不存则初始化
         const userDoc = doc(db, 'users', u.uid);
         try {
           const snap = await getDoc(userDoc);
@@ -160,7 +163,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
              await setDoc(userDoc, {
                uid: u.uid,
                email: u.email || '',
-               displayName: u.displayName || '新用户',
+               displayName: u.isAnonymous ? '智护演示用户' : (u.displayName || '新用户'),
                avatar: u.photoURL || '',
                createdAt: new Date().toISOString()
              }).catch(e => handleFirestoreError(e, OperationType.CREATE, `users/${u.uid}`));
@@ -173,6 +176,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                userId: u.uid,
                robotIds: []
              });
+
+             // 如果是匿名登录（演示用途），自动绑定一个演示机器人
+             if (u.isAnonymous) {
+               const robotId = "robot_demo_" + u.uid;
+               await setDoc(doc(db, 'robots', robotId), {
+                 ...DEFAULT_ROBOTS[0],
+                 id: robotId,
+                 name: '演示机器人-小智',
+                 ownerId: u.uid,
+                 status: 'online',
+                 battery: 92,
+                 wifi: '演示专用 • 极强'
+               });
+             }
           }
         } catch (e) {
           handleFirestoreError(e, OperationType.GET, `users/${u.uid}`);

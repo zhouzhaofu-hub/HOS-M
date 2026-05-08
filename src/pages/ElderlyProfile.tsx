@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Layout } from '../components/Layout';
 import { Avatar } from '../components/Avatar';
-import { ChevronLeft, User, Phone, MapPin, Heart, FileText, Plus, CheckCircle2, Circle, Settings2, Bot, X } from 'lucide-react';
+import { ChevronLeft, User, Phone, MapPin, Heart, FileText, Plus, CheckCircle2, Circle, Settings2, Bot, X, Camera, Loader2, Sparkles, Image as LucideImage } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
+import { ServiceOwner } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
+import { analyzeMedicalRecord } from '../services/aiService';
 
 export default function ElderlyProfile() {
   const navigate = useNavigate();
@@ -12,6 +14,9 @@ export default function ElderlyProfile() {
   const [showRobotPicker, setShowRobotPicker] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<ServiceOwner | null>(null);
+  const [isParsing, setIsParsing] = useState(false);
+  const albumInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const defaultOwner = owners.find(o => o.isDefault) || owners[0];
 
@@ -29,6 +34,37 @@ export default function ElderlyProfile() {
       const newOwners = owners.map(o => o.id === editForm.id ? editForm : o);
       setOwners(newOwners);
       setIsEditing(false);
+    }
+  };
+
+  // 处理文件上传并调用AI解析
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !defaultOwner) return;
+
+    setIsParsing(true);
+    try {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const base64 = event.target?.result?.toString().split(',')[1];
+        if (!base64) return;
+
+        const result = await analyzeMedicalRecord(base64, file.type);
+        
+        // 自动填入表单并开启编辑模式，让用户确认
+        setEditForm({
+          ...defaultOwner,
+          medicalHistory: result.medicalHistory,
+          medicalRecord: result.medicalRecord
+        });
+        setIsEditing(true);
+        setIsParsing(false);
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error("Analysis failed:", error);
+      alert("AI解析失败，请检查网络或图片质量后重试。");
+      setIsParsing(false);
     }
   };
 
@@ -226,32 +262,150 @@ export default function ElderlyProfile() {
               </section>
 
               {/* Health Records */}
-              <section className="space-y-3 pb-8">
-                 <h3 className="px-1 text-[10px] font-black text-text-muted uppercase tracking-widest opacity-70">健康档案</h3>
-                 <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-rose-50/30 p-5 rounded-[28px] border border-rose-100">
-                      <div className="flex items-center gap-2 text-rose-500 mb-2">
-                        <div className="p-1.5 bg-white rounded-lg">
-                          <Heart className="w-3.5 h-3.5" />
+              <section className="space-y-4 pb-8">
+                 <h3 className="px-1 text-[10px] font-black text-text-muted uppercase tracking-widest opacity-70 flex items-center gap-2">
+                   <span>健康档案管理</span>
+                   <div className="h-[1px] flex-1 bg-slate-100" />
+                 </h3>
+                 
+                 <input 
+                    type="file" 
+                    ref={albumInputRef}
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    accept="image/*"
+                  />
+                  <input 
+                    type="file" 
+                    ref={cameraInputRef}
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    accept="image/*"
+                    capture="environment"
+                  />
+                 
+                 <div className="flex flex-col gap-4">
+                    {/* 1. 慢病管理 */}
+                    <div className="bg-emerald-50/30 p-5 rounded-[32px] border border-emerald-100/50 shadow-sm relative overflow-hidden group">
+                      <div className="flex items-center gap-2 text-emerald-600 mb-3">
+                        <div className="p-1.5 bg-white rounded-xl shadow-sm border border-emerald-50">
+                          <Plus className="w-3.5 h-3.5" />
                         </div>
-                        <span className="text-[9px] font-black uppercase">现病史</span>
+                        <span className="text-[10px] font-black uppercase tracking-wider">慢性病管理</span>
                       </div>
-                      <p className="text-[11px] font-bold text-rose-700 leading-relaxed">{defaultOwner?.medicalHistory}</p>
+                      <p className="text-[14px] font-bold text-emerald-900/80 leading-relaxed px-1">
+                        {defaultOwner?.chronicDisease || '且无登记记录'}
+                      </p>
                     </div>
-                    <div className="bg-blue-50/30 p-5 rounded-[28px] border border-blue-100">
-                       <div className="flex items-center gap-2 text-brand-blue mb-2">
-                        <div className="p-1.5 bg-white rounded-lg">
-                          <FileText className="w-3.5 h-3.5" />
+
+                    {/* 2. 过敏信息 */}
+                    <div className="bg-amber-50/40 p-5 rounded-[32px] border border-amber-100/50 shadow-sm relative overflow-hidden group">
+                      <div className="flex items-center gap-2 text-amber-600 mb-3">
+                        <div className="p-1.5 bg-white rounded-xl shadow-sm border border-amber-50">
+                          <X className="w-3.5 h-3.5" />
                         </div>
-                        <span className="text-[9px] font-black uppercase">医疗记录</span>
+                        <span className="text-[10px] font-black uppercase tracking-wider">过敏信息与用药安全</span>
                       </div>
-                      <p className="text-[11px] font-bold text-blue-700 leading-relaxed">{defaultOwner?.medicalRecord}</p>
+                      <p className="text-[14px] font-bold text-amber-900/80 leading-relaxed px-1">
+                        {defaultOwner?.allergies || '暂无已知过敏源'}
+                      </p>
+                    </div>
+
+                    {/* 3. 既往史 (Original Medical History) */}
+                    <div className="bg-rose-50/30 p-5 rounded-[32px] border border-rose-100/50 shadow-sm relative overflow-hidden group">
+                      <div className="flex items-center gap-2 text-rose-500 mb-3">
+                        <div className="p-1.5 bg-white rounded-xl shadow-sm border border-rose-50">
+                          <Heart className="w-4 h-4" />
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-wider">既往史与手术记录</span>
+                      </div>
+                      <p className="text-[14px] font-bold text-rose-800/80 leading-relaxed px-1">
+                        {defaultOwner?.medicalHistory}
+                      </p>
+                    </div>
+
+                    {/* 4. 风险评估 */}
+                    <div className="bg-indigo-50/30 p-5 rounded-[32px] border border-indigo-100/50 shadow-sm relative overflow-hidden group">
+                      <div className="flex items-center gap-2 text-indigo-500 mb-3">
+                        <div className="p-1.5 bg-white rounded-xl shadow-sm border border-indigo-50">
+                          <Settings2 className="w-3.5 h-3.5" />
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-wider">风险评估与生活能力</span>
+                      </div>
+                      <p className="text-[14px] font-bold text-indigo-800/80 leading-relaxed px-1">
+                        {defaultOwner?.evaluation || '暂无评估记录'}
+                      </p>
+                    </div>
+
+                    {/* 5. 医嘱记录 (Original Medical Record) */}
+                    <div className="bg-brand-blue/5 p-5 rounded-[32px] border border-brand-blue/10 shadow-sm relative overflow-hidden group">
+                       <div className="flex items-center gap-2 text-brand-blue mb-4">
+                        <div className="p-1.5 bg-white rounded-xl shadow-sm border border-brand-blue/5">
+                          <FileText className="w-4 h-4" />
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-wider">医嘱与处方建议</span>
+                      </div>
+                      
+                      <div className="space-y-4 px-1">
+                        {defaultOwner?.medicalRecord.includes('；') ? (
+                          <>
+                            <div className="relative pl-4 border-l-2 border-brand-blue/20">
+                              <p className="text-[9px] font-black text-brand-blue/40 uppercase tracking-[0.12em] mb-1">用药处方</p>
+                              <p className="text-[14px] font-bold text-text-main leading-snug">
+                                {defaultOwner.medicalRecord.split('；')[0]}
+                              </p>
+                            </div>
+                            <div className="relative pl-4 border-l-2 border-brand-blue/20">
+                              <p className="text-[9px] font-black text-brand-blue/40 uppercase tracking-[0.12em] mb-1">健康处方</p>
+                              <p className="text-[14px] font-bold text-text-main leading-snug">
+                                {defaultOwner.medicalRecord.split('；')[1]}
+                              </p>
+                            </div>
+                          </>
+                        ) : (
+                          <p className="text-[14px] font-bold text-text-main leading-relaxed">{defaultOwner?.medicalRecord}</p>
+                        )}
+                      </div>
                     </div>
                  </div>
-                 <button className="w-full py-4 border border-dashed border-border-base rounded-2xl flex items-center justify-center gap-2 text-text-muted text-[10px] font-black uppercase tracking-widest active:bg-slate-50 transition-colors bg-white mt-2">
-                   <Plus className="w-4 h-4" />
-                   <span>添加病历附件</span>
-                 </button>
+
+                 {/* Action Buttons */}
+                 <div className="space-y-4 mt-6">
+                    <button 
+                        onClick={() => cameraInputRef.current?.click()}
+                        disabled={isParsing}
+                        className="w-full py-4 bg-brand-blue text-white rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-brand-blue/20 active:scale-[0.98] transition-all"
+                      >
+                        {isParsing ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span className="text-[13px] font-black uppercase tracking-widest">AI 正在解析中...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-4 h-4" />
+                            <span className="text-[13px] font-black uppercase tracking-widest">拍照提取档案</span>
+                          </>
+                        )}
+                    </button>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <button 
+                        onClick={() => albumInputRef.current?.click()}
+                        className="py-3 bg-white border border-slate-100 rounded-xl flex items-center justify-center gap-2 text-text-muted active:bg-slate-50 transition-colors shadow-sm"
+                      >
+                        <LucideImage className="w-4 h-4" />
+                        <span className="text-[11px] font-black uppercase tracking-wider">从相册选择</span>
+                      </button>
+                      <button 
+                        onClick={startEditing}
+                        className="py-3 bg-white border border-slate-100 rounded-xl flex items-center justify-center gap-2 text-text-muted active:bg-slate-50 transition-colors shadow-sm"
+                      >
+                        <Settings2 className="w-4 h-4" />
+                        <span className="text-[11px] font-black uppercase tracking-wider">手动完善此页</span>
+                      </button>
+                    </div>
+                 </div>
               </section>
             </motion.div>
           </AnimatePresence>
@@ -451,26 +605,56 @@ export default function ElderlyProfile() {
 
                 {/* Section: Medical */}
                 <div className="space-y-5">
-                  <h4 className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] opacity-60">📋 健康档案</h4>
+                  <h4 className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] opacity-60">📋 健康档案详细记录</h4>
                   
                   <div className="space-y-4">
                     <div className="space-y-1.5">
-                      <label className="text-[11px] font-black text-slate-400 ml-1">健康史 (过敏/禁忌) ⚠️</label>
+                      <label className="text-[11px] font-black text-slate-400 ml-1">慢性病管理 💊</label>
                       <textarea 
-                        value={editForm.medicalHistory}
-                        onChange={e => setEditForm({ ...editForm, medicalHistory: e.target.value })}
-                        className="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 text-sm font-bold text-text-main focus:ring-2 focus:ring-emerald-500/20 transition-all min-h-[100px] resize-none"
-                        placeholder="列出过敏源、药物禁忌等"
+                        value={editForm.chronicDisease || ''}
+                        onChange={e => setEditForm({ ...editForm, chronicDisease: e.target.value })}
+                        className="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 text-sm font-bold text-text-main focus:ring-2 focus:ring-emerald-500/20 transition-all min-h-[80px] resize-none"
+                        placeholder="疾病名、ICD10、确诊时间、控制状态等"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-[11px] font-black text-slate-400 ml-1">既往史 (慢病/手术) 🏥</label>
+                      <label className="text-[11px] font-black text-slate-400 ml-1">过敏信息与用药安全 ⚠️</label>
+                      <textarea 
+                        value={editForm.allergies || ''}
+                        onChange={e => setEditForm({ ...editForm, allergies: e.target.value })}
+                        className="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 text-sm font-bold text-text-main focus:ring-2 focus:ring-rose-500/20 transition-all min-h-[80px] resize-none"
+                        placeholder="过敏原类型、名称、反应、严重程度"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-black text-slate-400 ml-1">既往史与手术 🏥</label>
+                      <textarea 
+                        value={editForm.medicalHistory}
+                        onChange={e => setEditForm({ ...editForm, medicalHistory: e.target.value })}
+                        className="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 text-sm font-bold text-text-main focus:ring-2 focus:ring-rose-500/20 transition-all min-h-[80px] resize-none"
+                        placeholder="既往疾病、手术记录、外伤、输血史"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-black text-slate-400 ml-1">风险评估与生活能力 📊</label>
+                      <textarea 
+                        value={editForm.evaluation || ''}
+                        onChange={e => setEditForm({ ...editForm, evaluation: e.target.value })}
+                        className="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 text-sm font-bold text-text-main focus:ring-2 focus:ring-indigo-500/20 transition-all min-h-[80px] resize-none"
+                        placeholder="ADL评分、跌倒风险、营养/认知/情绪评估"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-black text-slate-400 ml-1">医嘱记录 (用药/健康建议) 📋</label>
                       <textarea 
                         value={editForm.medicalRecord}
                         onChange={e => setEditForm({ ...editForm, medicalRecord: e.target.value })}
-                        className="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 text-sm font-bold text-text-main focus:ring-2 focus:ring-emerald-500/20 transition-all min-h-[100px] resize-none"
-                        placeholder="描述既往病史、长期服药情况等"
+                        className="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 text-sm font-bold text-text-main focus:ring-2 focus:ring-brand-blue/20 transition-all min-h-[80px] resize-none"
+                        placeholder="使用 ‘；’ 分隔用药处方和健康建议"
                       />
                     </div>
                   </div>

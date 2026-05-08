@@ -28,8 +28,11 @@ export interface ServiceOwner {
   bloodType: string;
   phone: string;
   address: string;
-  medicalHistory: string;
+  medicalHistory: string; 
   medicalRecord: string;
+  chronicDisease?: string;
+  allergies?: string;
+  evaluation?: string;
   isDefault: boolean;
   robotIds?: string[];
 }
