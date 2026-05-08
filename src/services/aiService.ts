@@ -1,6 +1,17 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+let aiClient: GoogleGenAI | null = null;
+
+function getAIClient() {
+  if (!aiClient) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      console.warn("GEMINI_API_KEY environment variable is missing.");
+    }
+    aiClient = new GoogleGenAI({ apiKey: apiKey || "dummy_key_to_prevent_fatal_crash" });
+  }
+  return aiClient;
+}
 
 export interface ParsingResult {
   medicalHistory: string;
@@ -9,6 +20,7 @@ export interface ParsingResult {
 
 export async function analyzeMedicalRecord(base64Image: string, mimeType: string): Promise<ParsingResult> {
   try {
+    const ai = getAIClient();
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: [
