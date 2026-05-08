@@ -15,10 +15,43 @@ export default function ElderlyProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<ServiceOwner | null>(null);
   const [isParsing, setIsParsing] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [isPrivacyRevealed, setIsPrivacyRevealed] = useState(false);
+  const [privacyPassword, setPrivacyPassword] = useState('');
+  const [pwdError, setPwdError] = useState('');
+
   const albumInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const defaultOwner = owners.find(o => o.isDefault) || owners[0];
+
+  const maskPhone = (phone: string = '') => {
+    if (isPrivacyRevealed) return phone;
+    const cleaned = phone.replace(/\s+/g, '');
+    if (cleaned.length >= 11) {
+      return cleaned.substring(0, 3) + ' **** ' + cleaned.substring(7);
+    }
+    return cleaned.length > 4 ? cleaned.substring(0, 3) + '***' : cleaned;
+  };
+
+  const maskAddress = (addr: string = '') => {
+    if (isPrivacyRevealed) return addr;
+    if (addr.length > 6) {
+      return addr.substring(0, 3) + '***' + addr.substring(addr.length - 2);
+    }
+    return '***';
+  };
+
+  const handleVerifyPrivacy = () => {
+    if (privacyPassword === '123456') { // Mock password
+      setIsPrivacyRevealed(true);
+      setShowPrivacyModal(false);
+      setPrivacyPassword('');
+      setPwdError('');
+    } else {
+      setPwdError('密码错误，请重试');
+    }
+  };
 
   // 开启编辑模式
   const startEditing = () => {
@@ -247,17 +280,24 @@ export default function ElderlyProfile() {
               <section className="space-y-3">
                  <h3 className="px-1 text-[10px] font-black text-text-muted uppercase tracking-widest flex justify-between items-center opacity-70">
                    <span>基本信息</span>
-                   <button 
-                    onClick={startEditing}
-                    className="text-brand-blue normal-case text-[11px] font-black"
-                   >
-                     编辑
-                   </button>
+                   <div className="flex items-center gap-4">
+                     {isPrivacyRevealed ? (
+                       <button onClick={() => setIsPrivacyRevealed(false)} className="text-brand-blue normal-case text-[11px] font-black flex items-center gap-1">🙈 隐藏隐私</button>
+                     ) : (
+                       <button onClick={() => setShowPrivacyModal(true)} className="text-brand-blue normal-case text-[11px] font-black flex items-center gap-1">👁️ 查看隐私</button>
+                     )}
+                     <button 
+                      onClick={startEditing}
+                      className="text-brand-blue normal-case text-[11px] font-black"
+                     >
+                       编辑
+                     </button>
+                   </div>
                  </h3>
                  <div className="bg-white rounded-[32px] border border-border-base overflow-hidden divide-y divide-slate-50 shadow-sm">
-                    <InfoRow icon={<User className="w-4 h-4" />} label="姓名" value={defaultOwner?.name} />
-                    <InfoRow icon={<Phone className="w-4 h-4" />} label="联系电话" value={defaultOwner?.phone} />
-                    <InfoRow icon={<MapPin className="w-4 h-4" />} label="居住地址" value={defaultOwner?.address} />
+                    <InfoRow icon={<User className="w-4 h-4" />} label="姓名" value={defaultOwner?.name || ''} />
+                    <InfoRow icon={<Phone className="w-4 h-4" />} label="联系电话" value={maskPhone(defaultOwner?.phone)} />
+                    <InfoRow icon={<MapPin className="w-4 h-4" />} label="居住地址" value={maskAddress(defaultOwner?.address)} />
                  </div>
               </section>
 
@@ -669,6 +709,64 @@ export default function ElderlyProfile() {
                 >
                   <span>保存修改 💾</span>
                 </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+      {/* Privacy Password Modal */}
+      <AnimatePresence>
+        {showPrivacyModal && (
+          <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowPrivacyModal(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" 
+            />
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="relative w-full max-w-sm bg-white rounded-[32px] p-6 shadow-2xl overflow-hidden"
+            >
+              <div className="text-center space-y-2 mb-6">
+                <div className="w-16 h-16 bg-brand-blue/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">🔒</span>
+                </div>
+                <h3 className="text-lg font-black text-text-main">隐私安全验证</h3>
+                <p className="text-xs text-text-muted">请输入密码查看完整的敏感信息</p>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <input
+                    type="password"
+                    value={privacyPassword}
+                    onChange={(e) => setPrivacyPassword(e.target.value)}
+                    placeholder="输入密码 (演示: 123456)"
+                    className="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 text-center text-lg font-bold text-text-main focus:ring-2 focus:ring-brand-blue/20 transition-all tracking-widest placeholder:tracking-normal placeholder:text-sm"
+                  />
+                  {pwdError && (
+                    <p className="text-[10px] text-rose-500 font-bold text-center mt-2">{pwdError}</p>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 pt-2">
+                  <button
+                    onClick={() => setShowPrivacyModal(false)}
+                    className="py-3.5 bg-slate-50 text-text-muted rounded-xl font-black text-sm active:scale-95 transition-all"
+                  >
+                    取消
+                  </button>
+                  <button
+                    onClick={handleVerifyPrivacy}
+                    className="py-3.5 bg-brand-blue text-white rounded-xl font-black text-sm shadow-lg shadow-brand-blue/20 active:scale-95 transition-all"
+                  >
+                    验证
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>
