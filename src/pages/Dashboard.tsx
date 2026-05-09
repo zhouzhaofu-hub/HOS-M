@@ -36,7 +36,7 @@ export default function Dashboard() {
   const HEALTH_EVENTS = [
     { id: 1, time: '10:30', title: '服药确认', detail: '硝苯地平缓释片 1片', status: 'completed' },
     { id: 2, time: '09:15', title: '运动完成', detail: '室内康复步行 15分钟', status: 'completed' },
-    { id: 3, time: '08:00', title: '服药确认', detail: '阿司匹林肠溶片 1片', status: 'completed' },
+    { id: 3, time: '08:00', title: '膳食确认', detail: '低盐康复早餐 1份', status: 'completed' },
     { id: 4, time: '07:30', title: '生理指标监测', detail: '血压: 150/95 毫米汞柱 (偏高)', status: 'warning' },
   ];
 
@@ -90,8 +90,8 @@ export default function Dashboard() {
         )}
       </AnimatePresence>
 
-      <div className="px-6 pt-8 pb-3 bg-white border-b border-slate-100">
-        <div className="flex justify-between items-end mb-3">
+      <div className="px-6 pt-4 pb-2 bg-white border-b border-slate-100">
+        <div className="flex justify-between items-end mb-1">
           <div>
             <h2 className="text-xl font-black text-slate-900 mt-1 tracking-tight italic uppercase">早安，主人</h2>
             <p className="text-[9px] text-slate-400 font-bold uppercase tracking-[0.3em] mt-0.5">智能生活看板</p>
@@ -114,22 +114,22 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto scrollbar-hide px-5 space-y-4 pt-4 pb-20 bg-[#F8FAFC]">
+      <div className="flex-1 overflow-y-auto scrollbar-hide px-4 space-y-2 pt-2 pb-16 bg-[#F8FAFC]">
         {/* Physical Status Briefing */}
-        <div className="space-y-3">
-          <div className="bg-white border border-slate-100 p-6 rounded-[32px] shadow-sm">
-            <div className="flex items-center justify-between mb-4">
+        <div className="space-y-2">
+          <div className="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm">
+            <div className="flex items-center justify-between mb-3">
                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">生理指标简报</h4>
                <div className="bg-blue-50 px-1.5 py-0.5 rounded-lg">
                   <span className="text-[7px] font-black text-blue-600 uppercase tracking-widest">实时已同步</span>
                </div>
             </div>
             
-            <p className="text-[11px] font-bold text-slate-500 mb-6 leading-relaxed bg-slate-50/50 p-3 rounded-2xl border border-slate-50">
+            <p className="text-[11px] font-bold text-slate-500 mb-4 leading-relaxed bg-slate-50/50 p-2.5 rounded-2xl border border-slate-50">
               今日健康概况：生命体征整体平稳，心率与呼吸频率处于理想区间。注意：当前收缩压略高于预警线（140mmHg），建议减少钠盐摄入并增加静息休息。
             </p>
             
-            <div className="grid grid-cols-2 gap-x-8 gap-y-6">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                <div className="flex flex-col">
                   <p className="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest">心率指标 <span className="text-[8px] font-bold opacity-60 ml-1">(正常: 60-100)</span></p>
                   <p className="text-xl font-black text-slate-900 tabular-nums">{hasRobotBound ? '72' : '-'}</p>
@@ -139,7 +139,11 @@ export default function Dashboard() {
                   </div>
                </div>
                <div className="flex flex-col">
-                  <p className="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest">平均血压 <span className="text-[8px] font-bold opacity-60 ml-1">(正常: &lt;140/90)</span></p>
+                  <div className="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest flex items-center gap-1.5">
+                    平均血压 
+                    <span className="text-[8px] font-bold opacity-60">(正常: &lt;140/90)</span>
+                    {hasRobotBound && <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse shadow-sm shadow-orange-500/20" />}
+                  </div>
                   <p className={`text-xl font-black tabular-nums ${hasRobotBound ? 'text-orange-500' : 'text-slate-900'}`}>{hasRobotBound ? '150/95' : '-'}</p>
                   <p className={`text-[8px] font-black uppercase tracking-widest ${hasRobotBound ? 'text-orange-500' : 'text-slate-300'}`}>
                     {hasRobotBound ? '血压偏高' : '暂无数据'}
@@ -163,21 +167,25 @@ export default function Dashboard() {
           </div>
 
           {/* Health Events List */}
-          <div className="space-y-3">
-            <div className="flex justify-between items-center px-2">
+          <div className="space-y-2">
+            <div className="flex justify-between items-center px-1">
               <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">24H 健康记录轨迹</h3>
               <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest">时间倒序</span>
             </div>
             
-            <div className="bg-white rounded-[32px] border border-slate-100 divide-y divide-slate-50 overflow-hidden shadow-sm">
+            <div className="bg-white rounded-2xl border border-slate-100 divide-y divide-slate-50 overflow-hidden shadow-sm">
               {HEALTH_EVENTS.map((event) => (
-                <div key={event.id} className="p-4 flex items-start gap-3 active:bg-slate-50 transition-colors">
+                <div key={event.id} className="p-3 flex items-start gap-3 active:bg-slate-50 transition-colors">
                   <div className="text-[10px] font-black text-slate-300 w-12 pt-0.5 uppercase tracking-widest shrink-0 tabular-nums">{event.time}</div>
                   <div className="flex-1 min-w-0">
-                    <h5 className="text-[14px] font-black text-slate-800 leading-tight uppercase tracking-tight">{event.title}</h5>
-                    <p className="text-[11px] text-slate-400 font-bold mt-1 tracking-tight">{event.detail}</p>
+                    <h5 className={`text-[14px] font-black leading-tight uppercase tracking-tight ${event.status === 'warning' ? 'text-orange-500' : 'text-slate-800'}`}>{event.title}</h5>
+                    <p className={`text-[11px] font-bold mt-1 tracking-tight ${event.status === 'warning' ? 'text-orange-400' : 'text-slate-400'}`}>{event.detail}</p>
                   </div>
-                  <div className={`w-2.5 h-2.5 rounded-full mt-1 shrink-0 ${event.status === 'completed' ? 'bg-emerald-500 shadow-md shadow-emerald-500/20' : 'bg-blue-500 shadow-md shadow-blue-500/20'}`} />
+                  <div className={`w-2.5 h-2.5 rounded-full mt-1 shrink-0 ${
+                    event.status === 'completed' ? 'bg-emerald-500 shadow-md shadow-emerald-500/20' : 
+                    event.status === 'warning' ? 'bg-orange-500 shadow-md shadow-orange-500/20' :
+                    'bg-blue-500 shadow-md shadow-blue-500/20'
+                  }`} />
                 </div>
               ))}
               {!hasRobotBound && (
@@ -188,7 +196,7 @@ export default function Dashboard() {
             </div>
             
             {hasRobotBound && (
-               <button onClick={() => navigate('/health')} className="w-full py-4 text-[10px] font-black text-blue-600 uppercase tracking-[0.3em] bg-white rounded-[24px] active:scale-[0.98] transition-all border border-slate-100 shadow-sm">
+               <button onClick={() => navigate('/health')} className="w-full py-4 text-[10px] font-black text-blue-600 uppercase tracking-[0.3em] bg-white rounded-2xl active:scale-[0.98] transition-all border border-slate-100 shadow-sm">
                   查看完整健康看板 ➜
                </button>
             )}
@@ -196,7 +204,7 @@ export default function Dashboard() {
         </div>
 
         {/* Robot Status Card - Moved down or made smaller */}
-        <div className="bg-slate-900 rounded-[32px] p-6 relative overflow-hidden shadow-xl shadow-slate-900/10">
+        <div className="bg-slate-900 rounded-2xl p-4 relative overflow-hidden shadow-xl shadow-slate-900/10">
           <div className="absolute top-0 right-0 w-24 h-24 bg-blue-600/20 blur-3xl -mr-10 -mt-10 pointer-events-none" />
           
           {!hasRobotBound && (
@@ -211,15 +219,28 @@ export default function Dashboard() {
             </div>
           )}
           
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-blue-400 border border-white/5 backdrop-blur-md">
+              <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-blue-400 border border-white/5 backdrop-blur-md">
                 <span className="text-2xl">🤖</span>
               </div>
-              <div>
-                <h3 className="font-black text-white text-base tracking-tight leading-none uppercase">
-                  {activeRobot ? activeRobot.name : '未绑定设备'}
-                </h3>
+              <div className="flex flex-col">
+                <div className="flex items-center gap-2 group cursor-pointer" onClick={() => {
+                  if (robots.length > 1) {
+                    const currentIndex = robots.findIndex(r => r.id === activeRobotId);
+                    const nextIndex = (currentIndex + 1) % robots.length;
+                    setActiveRobotId(robots[nextIndex].id);
+                  }
+                }}>
+                  <h3 className="font-black text-white text-base tracking-tight leading-none uppercase">
+                    {activeRobot ? activeRobot.name : '未绑定设备'}
+                  </h3>
+                  {robots.length > 1 && (
+                    <span className="text-[10px] text-blue-400 font-bold bg-blue-500/10 px-1.5 py-0.5 rounded-md border border-blue-500/20 animate-pulse">
+                      切换
+                    </span>
+                  )}
+                </div>
                 <div className="flex items-center gap-1.5 mt-1.5">
                   <div className={`w-1.5 h-1.5 rounded-full ${activeRobot && activeRobot.status === 'online' ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}`} />
                   <span className={`text-[8px] font-black uppercase tracking-[0.2em] ${activeRobot && activeRobot.status === 'online' ? 'text-emerald-400' : 'text-slate-500'}`}>

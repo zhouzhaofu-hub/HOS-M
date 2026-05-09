@@ -94,7 +94,7 @@ interface AppContextType {
 const DEFAULT_OWNERS: ServiceOwner[] = [
   {
     id: '1',
-    name: '周大爷',
+    name: '王大爷',
     avatar: 'https://images.unsplash.com/photo-1544144433-d5075fcd5f3c?w=200&h=200&fit=crop',
     age: 72,
     bloodType: 'A型血',
@@ -105,7 +105,8 @@ const DEFAULT_OWNERS: ServiceOwner[] = [
     allergies: '药物：青霉素 (皮疹) · 轻度 · 确认人：王医生',
     evaluation: 'ADL评 85分 · 跌倒风险：低 · 营养：良好 · 认知：正常 · 情绪：平稳',
     medicalRecord: '硝苯地平缓释片 1片/次/日；每日清晨站立平衡运动 15分钟',
-    isDefault: true
+    isDefault: true,
+    robotIds: []
   }
 ];
 
@@ -170,26 +171,37 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
              // 为新用户创建一个默认的服务主人档案
              const ownerId = "owner_" + Date.now();
+             const robotId1 = "robot_A_" + u.uid;
+             const robotId2 = "robot_B_" + u.uid;
+
              await setDoc(doc(db, 'owners', ownerId), {
                ...DEFAULT_OWNERS[0],
                id: ownerId,
                userId: u.uid,
-               robotIds: []
+               robotIds: [robotId1, robotId2],
+               defaultRobotId: robotId1
              });
 
-             // 如果是匿名登录（演示用途），自动绑定一个演示机器人
-             if (u.isAnonymous) {
-               const robotId = "robot_demo_" + u.uid;
-               await setDoc(doc(db, 'robots', robotId), {
-                 ...DEFAULT_ROBOTS[0],
-                 id: robotId,
-                 name: '演示机器人-小智',
-                 ownerId: u.uid,
-                 status: 'online',
-                 battery: 92,
-                 wifi: '演示专用 • 极强'
-               });
-             }
+             // 默认创建2个机器人
+             await setDoc(doc(db, 'robots', robotId1), {
+               ...DEFAULT_ROBOTS[0],
+               id: robotId1,
+               name: '智护助手-01号',
+               ownerId: u.uid,
+               status: 'online',
+               battery: 95,
+               wifi: '信号 • 极强'
+             });
+
+             await setDoc(doc(db, 'robots', robotId2), {
+               ...DEFAULT_ROBOTS[1],
+               id: robotId2,
+               name: '智护助手-02号',
+               ownerId: u.uid,
+               status: 'online',
+               battery: 88,
+               wifi: '信号 • 强'
+             });
           }
         } catch (e) {
           handleFirestoreError(e, OperationType.GET, `users/${u.uid}`);
@@ -225,14 +237,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       handleFirestoreError(error, OperationType.LIST, 'robots');
     });
 
-    // 服务主人档案同步
-    const ownersQ = query(collection(db, 'owners'), where('userId', '==', user.uid));
-    const unsubOwners = onSnapshot(ownersQ, (snap) => {
-      const dbOwners = snap.docs.map(d => ({ id: d.id, ...d.data() } as ServiceOwner));
-      setOwners(dbOwners);
-    }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, 'owners');
-    });
+      // 服务主人档案同步
+      const ownersQ = query(collection(db, 'owners'), where('userId', '==', user.uid));
+      const unsubOwners = onSnapshot(ownersQ, (snap) => {
+        const dbOwners = snap.docs.map(d => ({ id: d.id, ...d.data() } as ServiceOwner));
+        setOwners(dbOwners);
+        
+        // 自动切换到默认主人的默认机器人
+        const defaultOwnerDoc = dbOwners.find(o => o.isDefault);
+        if (defaultOwnerDoc && defaultOwnerDoc.defaultRobotId && (!activeRobotId || !dbOwners.find(o => o.id === activeRobotId))) {
+          // Note: we check if robots are already loaded or if this is initial load
+          setActiveRobotId(defaultOwnerDoc.defaultRobotId);
+        }
+      }, (error) => {
+        handleFirestoreError(error, OperationType.LIST, 'owners');
+      });
 
     return () => {
       unsubRobots();

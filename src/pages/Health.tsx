@@ -141,7 +141,7 @@ export default function Health() {
     <Layout>
       <div className="flex flex-col h-full bg-[#F8FAFC]">
         {/* Modern Glass Header */}
-        <div className="bg-white px-8 pt-8 pb-8 border-b border-slate-100/50 shadow-sm relative overflow-hidden">
+        <div className="bg-white px-6 pt-4 pb-4 border-b border-slate-100/50 shadow-sm relative overflow-hidden">
           <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
             <span className="text-8xl font-black italic select-none">数据</span>
           </div>
@@ -158,12 +158,12 @@ export default function Health() {
             </div>
           </div>
 
-          <div className="bg-slate-50 p-1 rounded-[24px] border border-slate-100 flex gap-2 relative z-10 shadow-inner">
+          <div className="bg-slate-50 p-1 rounded-2xl border border-slate-100 flex gap-2 relative z-10 shadow-inner">
             {(['weekly', 'monthly', 'quarterly'] as ReportType[]).map((type) => (
               <button
                 key={type}
                 onClick={() => setReportType(type)}
-                className={`flex-1 py-3 text-[10px] font-black rounded-[18px] transition-all uppercase tracking-widest ${
+                className={`flex-1 py-2 text-[10px] font-black rounded-[14px] transition-all uppercase tracking-widest ${
                   reportType === type 
                     ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' 
                     : 'text-slate-400 hover:text-slate-600 font-black'
@@ -197,10 +197,10 @@ export default function Health() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="px-5 py-6 space-y-6"
+              className="px-4 py-4 space-y-4"
             >
               {/* Summary Conclusion Section - AI Recommendation */}
-              <div className="bg-blue-50/50 p-5 rounded-[24px] border border-blue-100 shadow-sm relative overflow-hidden text-center">
+              <div className="bg-blue-50/50 p-4 rounded-2xl border border-blue-100 shadow-sm relative overflow-hidden text-center">
                 <div className="absolute top-0 right-0 p-3 opacity-5">
                    <BrainCircuit className="w-10 h-10 text-blue-600" />
                 </div>
@@ -218,6 +218,7 @@ export default function Health() {
                   unit="次/分"
                   color="text-slate-800"
                   range="60-100"
+                  status={hasRobotBound ? 'normal' : undefined}
                 />
                 <MetricCard 
                   icon={<Activity className="w-4 h-4 text-indigo-500" />}
@@ -226,6 +227,7 @@ export default function Health() {
                   unit="毫米汞柱"
                   color="text-orange-500"
                   range="<140/90"
+                  status={hasRobotBound ? 'warning' : undefined}
                 />
                 <MetricCard 
                   icon={<Wind className="w-4 h-4 text-blue-500" />}
@@ -234,6 +236,7 @@ export default function Health() {
                   unit="%"
                   color="text-slate-800"
                   range=">90%"
+                  status={hasRobotBound ? 'normal' : undefined}
                 />
                 <MetricCard 
                   icon={<TrendingUp className="w-4 h-4 text-emerald-500" />}
@@ -242,11 +245,12 @@ export default function Health() {
                   unit="分"
                   color="text-emerald-500"
                   range="0-100"
+                  status={hasRobotBound ? 'normal' : undefined}
                 />
               </div>
 
               {/* Chart Section */}
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <div className="flex justify-between items-center px-1">
                   <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">生命指征趋势</h3>
                   {hasRobotBound && (
@@ -257,7 +261,7 @@ export default function Health() {
                   )}
                 </div>
                 
-                <div className="bg-white rounded-[32px] p-6 border border-slate-100 shadow-sm">
+                <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
                   <div className="h-56 w-full flex items-center justify-center bg-slate-50/30 rounded-2xl border border-dashed border-slate-100">
                     {hasRobotBound ? (
                       <ResponsiveContainer width="100%" height="100%">
@@ -302,8 +306,8 @@ export default function Health() {
               </div>
 
               {/* AI Predictive Risk Section */}
-              <div className="bg-white rounded-[32px] p-6 border border-slate-100 shadow-sm relative overflow-hidden">
-                <div className="flex items-center justify-between mb-6 relative z-10">
+              <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm relative overflow-hidden">
+                <div className="flex items-center justify-between mb-4 relative z-10">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-[16px] bg-indigo-50 flex items-center justify-center border border-indigo-100 shadow-sm">
                       <span className="text-xl">🧠</span>
@@ -356,8 +360,8 @@ export default function Health() {
               </div>
 
               {/* Rehabilitation Section */}
-              <div className="bg-white rounded-[24px] p-5 border border-slate-100 shadow-sm">
-                <div className="flex items-center gap-3 mb-5">
+              <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
                   <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-500 border border-emerald-100">
                     <Footprints className="w-4 h-4" />
                   </div>
@@ -367,7 +371,7 @@ export default function Health() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 mb-5">
+                <div className="grid grid-cols-2 gap-3 mb-4">
                   <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
                     <p className="text-[8px] font-black text-slate-400 uppercase mb-0.5 tracking-wider">活跃时长 <span className="opacity-60 ml-1">(参考: &gt;30min)</span></p>
                     <p className="text-base font-black text-slate-900 tracking-tight">{data.exercise.activeMins} <span className="text-[9px] text-slate-400">分钟</span></p>
@@ -393,8 +397,8 @@ export default function Health() {
               </div>
 
               {/* Summary Conclusion Section - Moved to bottom */}
-              <div className="bg-slate-900 rounded-[24px] p-5 text-white relative overflow-hidden shadow-lg">
-                <div className="flex items-center gap-2 mb-3 relative z-10">
+              <div className="bg-slate-900 rounded-2xl p-4 text-white relative overflow-hidden shadow-lg">
+                <div className="flex items-center gap-2 mb-2 relative z-10">
                   <Zap className="w-3.5 h-3.5 text-brand-blue fill-brand-blue" />
                   <span className="text-[9px] font-black uppercase tracking-[0.2em] text-brand-blue/80">AI 综合视角结论 · {title}</span>
                 </div>
@@ -420,15 +424,19 @@ export default function Health() {
   );
 }
 
-function MetricCard({ icon, label, value, unit, color, range }: { icon: React.ReactNode, label: string, value: string | number, unit: string, color: string, range?: string }) {
+function MetricCard({ icon, label, value, unit, color, range, status }: { icon: React.ReactNode, label: string, value: string | number, unit: string, color: string, range?: string, status?: 'normal' | 'warning' | 'alert' }) {
   return (
-    <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-col gap-4 hover:shadow-md transition-all group active:scale-[0.98]">
+    <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col gap-3 hover:shadow-md transition-all group active:scale-[0.98]">
       <div className="flex flex-col gap-1">
-        <div className="w-10 h-10 rounded-[18px] bg-slate-50 flex items-center justify-center grayscale group-hover:grayscale-0 transition-all shadow-sm">
+        <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center grayscale group-hover:grayscale-0 transition-all shadow-sm">
            {icon}
         </div>
         <div className="flex items-center justify-between mt-2 ml-1">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</p>
+          <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+            {label}
+            {status === 'warning' && <span className="w-1.5 h-1.5 rounded-full bg-orange-500 shadow-sm animate-pulse" />}
+            {status === 'normal' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-sm" />}
+          </div>
           {range && <span className="text-[8px] font-bold text-slate-300 tabular-nums">范围: {range}</span>}
         </div>
       </div>

@@ -35,6 +35,7 @@ export interface ServiceOwner {
   evaluation?: string;
   isDefault: boolean;
   robotIds?: string[];
+  defaultRobotId?: string;
 }
 
 export interface Message {

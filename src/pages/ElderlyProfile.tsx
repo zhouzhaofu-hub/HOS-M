@@ -135,13 +135,22 @@ export default function ElderlyProfile() {
     setOwners(newOwners);
   };
 
+  // 设置默认机器人
+  const handleSetDefaultRobot = (robotId: string) => {
+    if (!defaultOwner) return;
+    const newOwners = owners.map(o => 
+      o.id === defaultOwner.id ? { ...o, defaultRobotId: robotId } : o
+    );
+    setOwners(newOwners);
+  };
+
   // 获取当前档案关联的机器人列表
   const linkedRobots = robots.filter(r => defaultOwner?.robotIds?.includes(r.id));
 
   return (
     <Layout>
       <div className="flex flex-col h-full bg-white">
-        <div className="px-6 pt-12 pb-6 flex items-center justify-between border-b border-border-base">
+        <div className="px-6 pt-6 pb-4 flex items-center justify-between border-b border-border-base">
           <div className="flex items-center gap-4">
             <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-text-muted">
               <ChevronLeft className="w-6 h-6" />
@@ -156,9 +165,9 @@ export default function ElderlyProfile() {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-6 py-8 space-y-8 scrollbar-hide">
+        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4 scrollbar-hide">
           {/* Owners List */}
-          <section className="space-y-4">
+          <section className="space-y-2">
             <h3 className="px-1 text-[10px] font-black text-text-muted uppercase tracking-widest opacity-70">
               已绑定主人 ({owners.length})
             </h3>
@@ -206,11 +215,11 @@ export default function ElderlyProfile() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="space-y-8"
+              className="space-y-4"
             >
               {/* Profile Card */}
-              <div className="bg-slate-50/50 p-6 rounded-[32px] border border-border-base flex items-center gap-5 relative group overflow-hidden">
-                <div className="w-20 h-20 rounded-3xl border-4 border-white overflow-hidden shadow-xl shrink-0">
+              <div className="bg-slate-50/50 p-4 rounded-2xl border border-border-base flex items-center gap-5 relative group overflow-hidden">
+                <div className="w-16 h-16 rounded-3xl border-4 border-white overflow-hidden shadow-xl shrink-0">
                   <Avatar 
                     src={defaultOwner?.avatar}
                     className="w-full h-full"
@@ -236,7 +245,7 @@ export default function ElderlyProfile() {
               </div>
 
               {/* Linked Robots Section */}
-              <section className="space-y-3">
+              <section className="space-y-2">
                  <h3 className="px-1 text-[10px] font-black text-text-muted uppercase tracking-widest flex justify-between items-center opacity-70">
                    <span>服务机器人</span>
                    <button 
@@ -255,7 +264,12 @@ export default function ElderlyProfile() {
                               <Bot className="w-5 h-5" />
                             </div>
                             <div>
-                               <p className="text-sm font-bold text-text-main">{robot.name}</p>
+                               <div className="flex items-center gap-2">
+                                 <p className="text-sm font-bold text-text-main">{robot.name}</p>
+                                 {defaultOwner?.defaultRobotId === robot.id && (
+                                   <span className="text-[7px] font-black bg-brand-blue text-white px-1 py-0.5 rounded uppercase">默认</span>
+                                 )}
+                               </div>
                                <div className="flex items-center gap-1.5 mt-0.5">
                                   <div className={`w-1.5 h-1.5 rounded-full ${robot.status === 'online' ? 'bg-emerald-500' : 'bg-slate-300'}`} />
                                   <span className="text-[9px] font-bold text-text-muted uppercase">{robot.status === 'online' ? '在线' : '离线'}</span>
@@ -277,7 +291,7 @@ export default function ElderlyProfile() {
               </section>
 
               {/* Basic Info */}
-              <section className="space-y-3">
+              <section className="space-y-2">
                  <h3 className="px-1 text-[10px] font-black text-text-muted uppercase tracking-widest flex justify-between items-center opacity-70">
                    <span>基本信息</span>
                    <div className="flex items-center gap-4">
@@ -294,7 +308,7 @@ export default function ElderlyProfile() {
                      </button>
                    </div>
                  </h3>
-                 <div className="bg-white rounded-[32px] border border-border-base overflow-hidden divide-y divide-slate-50 shadow-sm">
+                 <div className="bg-white rounded-2xl border border-border-base overflow-hidden divide-y divide-slate-50 shadow-sm">
                     <InfoRow icon={<User className="w-4 h-4" />} label="姓名" value={defaultOwner?.name || ''} />
                     <InfoRow icon={<Phone className="w-4 h-4" />} label="联系电话" value={maskPhone(defaultOwner?.phone)} />
                     <InfoRow icon={<MapPin className="w-4 h-4" />} label="居住地址" value={maskAddress(defaultOwner?.address)} />
@@ -302,7 +316,7 @@ export default function ElderlyProfile() {
               </section>
 
               {/* Health Records */}
-              <section className="space-y-4 pb-8">
+              <section className="space-y-2 pb-4">
                  <h3 className="px-1 text-[10px] font-black text-text-muted uppercase tracking-widest opacity-70 flex items-center gap-2">
                    <span>健康档案管理</span>
                    <div className="h-[1px] flex-1 bg-slate-100" />
@@ -324,9 +338,9 @@ export default function ElderlyProfile() {
                     capture="environment"
                   />
                  
-                 <div className="flex flex-col gap-4">
+                 <div className="flex flex-col gap-2">
                     {/* 1. 慢病管理 */}
-                    <div className="bg-emerald-50/30 p-5 rounded-[32px] border border-emerald-100/50 shadow-sm relative overflow-hidden group">
+                    <div className="bg-emerald-50/30 p-4 rounded-2xl border border-emerald-100/50 shadow-sm relative overflow-hidden group">
                       <div className="flex items-center gap-2 text-emerald-600 mb-3">
                         <div className="p-1.5 bg-white rounded-xl shadow-sm border border-emerald-50">
                           <Plus className="w-3.5 h-3.5" />
@@ -339,7 +353,7 @@ export default function ElderlyProfile() {
                     </div>
 
                     {/* 2. 过敏信息 */}
-                    <div className="bg-amber-50/40 p-5 rounded-[32px] border border-amber-100/50 shadow-sm relative overflow-hidden group">
+                    <div className="bg-amber-50/40 p-4 rounded-2xl border border-amber-100/50 shadow-sm relative overflow-hidden group">
                       <div className="flex items-center gap-2 text-amber-600 mb-3">
                         <div className="p-1.5 bg-white rounded-xl shadow-sm border border-amber-50">
                           <X className="w-3.5 h-3.5" />
@@ -352,7 +366,7 @@ export default function ElderlyProfile() {
                     </div>
 
                     {/* 3. 既往史 (Original Medical History) */}
-                    <div className="bg-rose-50/30 p-5 rounded-[32px] border border-rose-100/50 shadow-sm relative overflow-hidden group">
+                    <div className="bg-rose-50/30 p-4 rounded-2xl border border-rose-100/50 shadow-sm relative overflow-hidden group">
                       <div className="flex items-center gap-2 text-rose-500 mb-3">
                         <div className="p-1.5 bg-white rounded-xl shadow-sm border border-rose-50">
                           <Heart className="w-4 h-4" />
@@ -365,7 +379,7 @@ export default function ElderlyProfile() {
                     </div>
 
                     {/* 4. 风险评估 */}
-                    <div className="bg-indigo-50/30 p-5 rounded-[32px] border border-indigo-100/50 shadow-sm relative overflow-hidden group">
+                    <div className="bg-indigo-50/30 p-4 rounded-2xl border border-indigo-100/50 shadow-sm relative overflow-hidden group">
                       <div className="flex items-center gap-2 text-indigo-500 mb-3">
                         <div className="p-1.5 bg-white rounded-xl shadow-sm border border-indigo-50">
                           <Settings2 className="w-3.5 h-3.5" />
@@ -378,7 +392,7 @@ export default function ElderlyProfile() {
                     </div>
 
                     {/* 5. 医嘱记录 (Original Medical Record) */}
-                    <div className="bg-brand-blue/5 p-5 rounded-[32px] border border-brand-blue/10 shadow-sm relative overflow-hidden group">
+                    <div className="bg-brand-blue/5 p-4 rounded-2xl border border-brand-blue/10 shadow-sm relative overflow-hidden group">
                        <div className="flex items-center gap-2 text-brand-blue mb-4">
                         <div className="p-1.5 bg-white rounded-xl shadow-sm border border-brand-blue/5">
                           <FileText className="w-4 h-4" />
@@ -410,7 +424,7 @@ export default function ElderlyProfile() {
                  </div>
 
                  {/* Action Buttons */}
-                 <div className="space-y-4 mt-6">
+                 <div className="space-y-2 mt-4">
                     <button 
                         onClick={() => cameraInputRef.current?.click()}
                         disabled={isParsing}

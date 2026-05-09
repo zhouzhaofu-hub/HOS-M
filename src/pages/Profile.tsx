@@ -37,17 +37,17 @@ export default function Profile() {
         <div className="flex-1 overflow-y-auto scrollbar-hide pb-20">
           
           {/* Top Gradient Header */}
-          <div className="relative pb-12">
-             <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-500 rounded-b-[48px]" />
+          <div className="relative pb-6">
+             <div className="absolute top-0 left-0 right-0 h-48 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-500 rounded-b-[32px]" />
              
              {/* User Info Container */}
-             <div className="relative px-8 pt-16 flex items-center gap-5">
+             <div className="relative px-8 pt-8 flex items-center gap-5">
                <div 
                  onClick={() => {
                    setIsEditing(true);
                    setTempName(userName);
                  }}
-                 className="w-24 h-24 rounded-[32px] overflow-hidden border-4 border-white/20 shadow-xl bg-white shrink-0 cursor-pointer active:scale-95 transition-transform"
+                 className="w-20 h-20 rounded-2xl overflow-hidden border-4 border-white/20 shadow-xl bg-white shrink-0 cursor-pointer active:scale-95 transition-transform"
                >
                  <Avatar src={user?.photoURL || MOCK_USER.avatar} className="w-full h-full object-cover" />
                </div>
@@ -65,8 +65,8 @@ export default function Profile() {
              </div>
 
              {/* Stats Card */}
-             <div className="relative px-6 mt-8">
-               <div className="bg-white rounded-[32px] p-6 shadow-lg shadow-blue-900/5 flex items-center justify-between border border-white/50">
+             <div className="relative px-6 mt-4">
+               <div className="bg-white rounded-2xl p-4 shadow-lg shadow-blue-900/5 flex items-center justify-between border border-white/50">
                  <div className="flex-1 text-center border-r border-slate-50">
                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">守护天数</p>
                    <p className="text-2xl font-black text-slate-800">452</p>
@@ -83,11 +83,11 @@ export default function Profile() {
              </div>
           </div>
 
-          <div className="px-6 space-y-10 mt-2">
+          <div className="px-6 space-y-4 mt-2">
             {/* Section 1: Guardian Management */}
             <div>
-              <h3 className="px-2 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">守护管理系统</h3>
-              <div className="space-y-4">
+              <h3 className="px-2 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">守护管理系统</h3>
+              <div className="space-y-2">
                 <MenuCard 
                   to="/elderly-profile"
                   icon={<div className="p-3 bg-blue-50 rounded-[20px] text-blue-500">
@@ -108,8 +108,8 @@ export default function Profile() {
 
             {/* Section 2: Account Preferences */}
             <div>
-              <h3 className="px-2 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">账户与偏好</h3>
-              <div className="space-y-4">
+              <h3 className="px-2 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">账户与偏好</h3>
+              <div className="space-y-2">
                 <MenuCard 
                   to="/messages"
                   icon={<div className="p-3 bg-slate-100 rounded-[20px] text-slate-500">
@@ -122,7 +122,7 @@ export default function Profile() {
 
             {/* Section 3: More (Safety) */}
             <div>
-              <div className="space-y-4">
+              <div className="space-y-2">
                 <MenuCard 
                    onClick={handleLogout}
                    isDanger
@@ -135,7 +135,7 @@ export default function Profile() {
             </div>
           </div>
 
-          <div className="py-12 flex flex-col items-center">
+          <div className="py-6 flex flex-col items-center">
             <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">智护守护系统 v1.2.0</p>
             <div className="mt-2 w-1 h-1 rounded-full bg-slate-200" />
           </div>

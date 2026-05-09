@@ -90,8 +90,8 @@ export default function HealthReport() {
   return (
     <Layout>
       <div className="flex flex-col h-full bg-slate-50 relative">
-        {/* Sticky Header */}
-        <div className="bg-white px-6 pt-12 pb-6 flex items-center justify-between border-b border-border-base sticky top-0 z-30 shadow-sm">
+        {/* 顶部导航栏 */}
+        <div className="bg-white px-6 pt-6 pb-4 flex items-center justify-between border-b border-border-base sticky top-0 z-30 shadow-sm">
           <div className="flex items-center gap-3">
             <button 
               onClick={() => navigate(-1)} 
@@ -142,12 +142,12 @@ export default function HealthReport() {
             </div>
           )}
 
-          {/* Brief Overview (One sentence) */}
-          <div className="p-6">
+          {/* 今日简报 */}
+          <div className="p-4">
             <motion.div 
                initial={{ opacity: 0, y: 10 }}
                animate={{ opacity: 1, y: 0 }}
-               className="bg-white rounded-[24px] p-5 border border-border-base shadow-sm text-center"
+               className="bg-white rounded-2xl p-4 border border-border-base shadow-sm text-center"
             >
                <p className="text-xs font-black text-text-main leading-relaxed">
                  {hasRobotBound ? `本报告周期内，您的身体机能整体表现${isQuarterly ? '极其卓越' : '稳健'}，核心指标均维持在预定义的健康安全阈值内。` : '由于实时监测时长未达标，系统暂处于数据沉淀期，暂无法生成本周期的简短概述。'}
@@ -155,12 +155,12 @@ export default function HealthReport() {
             </motion.div>
           </div>
 
-          <div className="px-6 pb-6 space-y-6">
-            {/* Metrics Breakdown */}
-            <div className="space-y-6">
+          <div className="px-4 pb-4 space-y-4">
+            {/* 指标详情解析 */}
+            <div className="space-y-4">
               {/* 心率趋势 */}
-              <div className="bg-white rounded-[32px] p-6 border border-border-base shadow-sm">
-                <div className="flex justify-between items-center mb-6">
+              <div className="bg-white rounded-2xl p-4 border border-border-base shadow-sm">
+                <div className="flex justify-between items-center mb-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center text-rose-500">
                       <Heart className="w-5 h-5" />
@@ -221,9 +221,9 @@ export default function HealthReport() {
                 </div>
               </div>
 
-              {/* 血氧与呼吸 (Pie Chart) */}
-              <div className="bg-white rounded-[32px] p-6 border border-border-base shadow-sm">
-                <div className="flex items-center gap-3 mb-6">
+              {/* 血氧与呼吸 (饼图) */}
+              <div className="bg-white rounded-2xl p-4 border border-border-base shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
                     <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-500">
                       <Activity className="w-5 h-5" />
                     </div>
@@ -273,8 +273,8 @@ export default function HealthReport() {
               </div>
 
               {/* 依从性柱状图 */}
-              <div className="bg-white rounded-[32px] p-6 border border-border-base shadow-sm">
-                <div className="flex justify-between items-center mb-6">
+              <div className="bg-white rounded-2xl p-4 border border-border-base shadow-sm">
+                <div className="flex justify-between items-center mb-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-500">
                       <CheckCircle2 className="w-5 h-5" />
@@ -312,11 +312,11 @@ export default function HealthReport() {
                 </div>
               </div>
 
-              {/* AI Executive Summary - Moved to end */}
+              {/* AI 综合汇总评估 */}
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-[32px] p-6 border border-border-base shadow-sm"
+                className="bg-white rounded-2xl p-4 border border-border-base shadow-sm"
               >
                 <div className="flex items-center gap-2 mb-4">
                   <div className={`w-2 h-2 rounded-full ${hasRobotBound ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`} />
@@ -357,9 +357,9 @@ export default function HealthReport() {
                 </div>
               </motion.div>
 
-              {/* AI 深度建议 (Deep Strategy) */}
-              <div className="bg-slate-900 rounded-[32px] p-8 text-white relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-8 opacity-10">
+              {/* AI 深度建议策略 */}
+              <div className="bg-slate-900 rounded-3xl p-6 text-white relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-6 opacity-10">
                    <Zap className="w-24 h-24 stroke-white fill-white" />
                 </div>
                 <div className="relative z-10">

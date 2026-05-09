@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 
 export default function Control() {
   const navigate = useNavigate();
-  const { hasRobotBound } = useAppContext();
+  const { hasRobotBound, robots, activeRobotId, setActiveRobotId } = useAppContext();
   const [isMicOn, setIsMicOn] = useState(false);
   const [isSpeakerOn, setIsSpeakerOn] = useState(true);
   const [activeRoom, setActiveRoom] = useState('living');
@@ -115,12 +115,42 @@ export default function Control() {
           {/* HUD Overlay - Closer to edges */}
           <div className="absolute inset-x-4 inset-y-6 flex flex-col justify-between pointer-events-none">
             <div className="flex justify-between items-start pointer-events-auto">
-              <button 
-                onClick={() => navigate(-1)} 
-                className="w-10 h-10 rounded-xl bg-black/40 backdrop-blur-md flex items-center justify-center text-white border border-white/10 active:scale-90 transition-transform"
-              >
-                <ChevronLeft className="w-6 h-6" />
-              </button>
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => navigate(-1)} 
+                  className="w-10 h-10 rounded-xl bg-black/40 backdrop-blur-md flex items-center justify-center text-white border border-white/10 active:scale-90 transition-transform"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+                {/* Robot Switcher in Control Page */}
+                <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md rounded-xl px-3 border border-white/10">
+                   <div className="flex flex-col">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[9px] font-black text-white uppercase tracking-tight">
+                          {robots.find(r => r.id === activeRobotId)?.name || '未连接'}
+                        </span>
+                        {robots.length > 1 && (
+                          <button 
+                            onClick={() => {
+                              const currentIndex = robots.findIndex(r => r.id === activeRobotId);
+                              const nextIndex = (currentIndex + 1) % robots.length;
+                              setActiveRobotId(robots[nextIndex].id);
+                            }}
+                            className="bg-brand-blue/80 px-1 rounded text-[7px] font-black text-white active:scale-90"
+                          >
+                            切换
+                          </button>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1 mt-0.5">
+                        <div className={`w-1 h-1 rounded-full ${robots.find(r => r.id === activeRobotId)?.status === 'online' ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}`} />
+                        <span className="text-[7px] font-bold text-white/60 tracking-widest uppercase">
+                          {robots.find(r => r.id === activeRobotId)?.status === 'online' ? 'Connected' : 'Offline'}
+                        </span>
+                      </div>
+                   </div>
+                </div>
+              </div>
               <div className="flex flex-col items-end gap-2">
                 <div className="flex gap-2">
                   <div className="bg-rose-500 text-white px-2 py-1 rounded-lg text-[8px] font-black uppercase flex items-center gap-1.5 border border-white/10 shadow-lg">
@@ -252,8 +282,8 @@ export default function Control() {
         </div>
 
         {/* Control Panel */}
-        <div className="flex-1 bg-[#F8FAFC] rounded-t-[48px] relative z-20 px-8 pt-10 pb-24 flex flex-col overflow-hidden shadow-[0_-20px_40px_rgba(0,0,0,0.08)] border-t border-white">
-          <div className="flex items-center justify-between mb-8 shrink-0">
+        <div className="flex-1 bg-[#F8FAFC] rounded-t-[32px] relative z-20 px-6 pt-6 pb-20 flex flex-col overflow-hidden shadow-[0_-20px_40px_rgba(0,0,0,0.08)] border-t border-white">
+          <div className="flex items-center justify-between mb-4 shrink-0">
              <h2 className="text-xl font-black text-slate-800 tracking-tight">智控中心</h2>
              <div className="bg-blue-50 px-3 py-1.5 rounded-full flex items-center gap-2 border border-blue-100 shadow-sm">
                 <div className="w-1.5 h-1.5 rounded-full bg-brand-blue animate-pulse" />
@@ -261,64 +291,83 @@ export default function Control() {
              </div>
           </div>
 
-          <div className="flex-1 flex flex-col justify-center">
-            <div className="flex items-center justify-between gap-8 pb-10">
-              {/* Joystick Side - More prominent arrows */}
-              <div className="flex-1 aspect-square max-w-[180px] relative rounded-full border-4 border-white bg-slate-100/50 flex items-center justify-center shadow-[inset_0_2px_10px_rgba(0,0,0,0.05)]">
-                 <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 p-4 pointer-events-none opacity-20">
-                    <div /><ArrowUp className="w-6 h-6 mx-auto text-slate-900 stroke-[4]" /><div />
-                    <ArrowLeft className="w-6 h-6 my-auto text-slate-900 stroke-[4]" /><div /><ArrowRight className="w-6 h-6 my-auto ml-auto text-slate-900 stroke-[4]" />
-                    <div /><ArrowDown className="w-6 h-6 mx-auto text-slate-900 stroke-[4]" /><div />
+          <div className="flex-1 flex flex-col justify-start pt-2">
+            <div className="flex items-center justify-between gap-6 pb-2">
+              {/* Directional Pad - Flatter buttons, prominent down arrow */}
+              <div className="flex-1 aspect-square max-w-[160px] relative rounded-full border-2 border-slate-100 bg-slate-50/50 flex items-center justify-center">
+                 <div className="grid grid-cols-3 grid-rows-3 gap-1 w-full h-full p-3">
+                    <div />
+                    <button className="flex items-center justify-center bg-white rounded-xl shadow-sm border border-slate-100 active:bg-slate-50 transition-all h-10 self-center">
+                      <ArrowUp className="w-5 h-5 text-slate-400" />
+                    </button>
+                    <div />
+                    
+                    <button className="flex items-center justify-center bg-white rounded-xl shadow-sm border border-slate-100 active:bg-slate-50 transition-all h-10 self-center">
+                      <ArrowLeft className="w-5 h-5 text-slate-400" />
+                    </button>
+                    <div className="flex items-center justify-center">
+                      <div className="w-2 h-2 rounded-full bg-slate-200" />
+                    </div>
+                    <button className="flex items-center justify-center bg-white rounded-xl shadow-sm border border-slate-100 active:bg-slate-50 transition-all h-10 self-center">
+                      <ArrowRight className="w-5 h-5 text-slate-400" />
+                    </button>
+                    
+                    <div />
+                    <button className="flex items-center justify-center bg-slate-900 rounded-xl shadow-lg border border-slate-800 active:bg-black transition-all h-10 self-center ring-2 ring-slate-900/10 scale-105">
+                      <ArrowDown className="w-5 h-5 text-white stroke-[3px]" />
+                    </button>
+                    <div />
                  </div>
-                 
-                 <motion.div 
-                   drag
-                   dragConstraints={{ left: -35, right: 35, top: -35, bottom: 35 }}
-                   dragElastic={0.15}
-                   whileTap={{ scale: 0.9 }}
-                   className="w-16 h-16 rounded-full bg-white shadow-2xl flex items-center justify-center z-10 border border-slate-50 relative pointer-events-auto"
-                 >
-                    <div className="w-8 h-8 rounded-full bg-brand-blue shadow-inner" />
-                 </motion.div>
-                 <div className="absolute w-24 h-24 rounded-full border-2 border-brand-blue/10 animate-ping opacity-10" />
               </div>
 
-              {/* Actions Side */}
-              <div className="flex-1 grid grid-cols-2 gap-3 content-center">
-                 <div className="col-span-2">
-                   <button className="w-full py-4 bg-white border border-slate-100 text-slate-800 rounded-[20px] flex items-center justify-center gap-3 shadow-sm active:scale-95 transition-all">
-                      <span className="text-xl">⚡</span>
-                      <span className="text-[11px] font-black uppercase tracking-widest">自动回充</span>
-                   </button>
-                 </div>
-                 {rooms.filter(r => r.id !== 'follow').map((room) => (
-                   <button 
-                    key={room.id}
-                    onClick={() => setActiveRoom(room.id)}
-                    className={`py-4 rounded-[20px] flex items-center justify-center text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all border shadow-sm ${
-                      activeRoom === room.id 
-                        ? 'bg-blue-600 border-blue-600 text-white shadow-blue-600/20' 
-                        : 'bg-white border-slate-100 text-slate-800'
-                    }`}
-                   >
-                     {room.name}
-                   </button>
-                 ))}
-                 
-                 <div className="col-span-2 mt-2">
-                   <button 
-                    onClick={() => setActiveRoom('follow')}
-                    className={`w-full py-4 border rounded-[22px] flex items-center justify-center gap-3 text-[11px] font-black uppercase tracking-widest active:scale-95 transition-all shadow-lg ${
-                      activeRoom === 'follow'
-                        ? 'bg-emerald-500 border-emerald-500 text-white shadow-emerald-500/20'
-                        : 'bg-white border-slate-100 text-slate-800 shadow-sm'
-                    }`}
-                   >
-                      <span className="text-xl">🏃‍♂️</span>
-                      监护跟随
-                   </button>
-                 </div>
+              {/* Quick Status Info */}
+              <div className="flex-1 flex flex-col gap-2 justify-center">
+                <div className="bg-white p-2.5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">速度</span>
+                  <span className="text-xs font-black text-slate-800">1.2m/s</span>
+                </div>
+                <div className="bg-white p-2.5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">距离</span>
+                  <span className="text-xs font-black text-emerald-500">0.8m</span>
+                </div>
+                <div className="bg-white p-2.5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">电量</span>
+                  <span className="text-xs font-black text-blue-500">88%</span>
+                </div>
               </div>
+            </div>
+
+            {/* Actions Grid - Flatter buttons */}
+            <div className="grid grid-cols-2 gap-2 mt-2">
+               <button className="w-full py-3 bg-white border border-slate-100 text-slate-800 rounded-xl flex items-center justify-center gap-2 shadow-sm active:scale-95 transition-all">
+                  <span className="text-sm">⚡</span>
+                  <span className="text-[9px] font-black uppercase tracking-widest">自动回充</span>
+               </button>
+               {rooms.filter(r => r.id !== 'follow').map((room) => (
+                 <button 
+                  key={room.id}
+                  onClick={() => setActiveRoom(room.id)}
+                  className={`py-3 rounded-xl flex items-center justify-center text-[9px] font-black uppercase tracking-widest active:scale-95 transition-all border shadow-sm ${
+                    activeRoom === room.id 
+                      ? 'bg-blue-600 border-blue-600 text-white shadow-blue-600/20' 
+                      : 'bg-white border-slate-100 text-slate-800'
+                  }`}
+                 >
+                   {room.name}
+                 </button>
+               ))}
+               
+               <button 
+                onClick={() => setActiveRoom('follow')}
+                className={`col-span-2 py-3 border rounded-xl flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all shadow-md ${
+                  activeRoom === 'follow'
+                    ? 'bg-emerald-500 border-emerald-500 text-white shadow-emerald-500/20'
+                    : 'bg-white border-slate-200 text-slate-800'
+                }`}
+               >
+                  <span className="text-base">🏃‍♂️</span>
+                  监护跟随模式
+               </button>
             </div>
           </div>
         </div>
