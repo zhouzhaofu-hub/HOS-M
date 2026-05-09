@@ -415,9 +415,27 @@ export default function ElderlyProfile() {
                                 {defaultOwner.medicalRecord.split('；')[1]}
                               </p>
                             </div>
+                            {defaultOwner.dietaryAdvice && (
+                              <div className="relative pl-4 border-l-2 border-brand-blue/20">
+                                <p className="text-[9px] font-black text-brand-blue/40 uppercase tracking-[0.12em] mb-1">饮食建议</p>
+                                <p className="text-[14px] font-bold text-text-main leading-snug">
+                                  {defaultOwner.dietaryAdvice}
+                                </p>
+                              </div>
+                            )}
                           </>
                         ) : (
-                          <p className="text-[14px] font-bold text-text-main leading-relaxed">{defaultOwner?.medicalRecord}</p>
+                          <div className="space-y-4">
+                            <p className="text-[14px] font-bold text-text-main leading-relaxed">{defaultOwner?.medicalRecord}</p>
+                            {defaultOwner?.dietaryAdvice && (
+                              <div className="relative pl-4 border-l-2 border-brand-blue/20">
+                                <p className="text-[9px] font-black text-brand-blue/40 uppercase tracking-[0.12em] mb-1">饮食建议</p>
+                                <p className="text-[14px] font-bold text-text-main leading-snug">
+                                  {defaultOwner.dietaryAdvice}
+                                </p>
+                              </div>
+                            )}
+                          </div>
                         )}
                       </div>
                     </div>
@@ -709,6 +727,16 @@ export default function ElderlyProfile() {
                         onChange={e => setEditForm({ ...editForm, medicalRecord: e.target.value })}
                         className="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 text-sm font-bold text-text-main focus:ring-2 focus:ring-brand-blue/20 transition-all min-h-[80px] resize-none"
                         placeholder="使用 ‘；’ 分隔用药处方和健康建议"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-black text-slate-400 ml-1">饮食建议 🍎</label>
+                      <textarea 
+                        value={editForm.dietaryAdvice || ''}
+                        onChange={e => setEditForm({ ...editForm, dietaryAdvice: e.target.value })}
+                        className="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 text-sm font-bold text-text-main focus:ring-2 focus:ring-brand-blue/20 transition-all min-h-[80px] resize-none"
+                        placeholder="请输入饮食建议，如：低盐、低脂饮食"
                       />
                     </div>
                   </div>

@@ -28,9 +28,11 @@ export default function Bind() {
   const navigate = useNavigate();
   const { setHasRobotBound, user } = useAppContext();
   const [method, setMethod] = useState<BindMethod>('qr');
-  const [step, setStep] = useState<BindStep>('initial');
+  const [step, setStep] = useState<BindStep>('manual');
   const [isSkipChecked, setIsSkipChecked] = useState(false);
   const [serialNumber, setSerialNumber] = useState('');
+  const [ownerName, setOwnerName] = useState('');
+  const [ownerPhone, setOwnerPhone] = useState('');
   
   // Setup configuration states
   const [configStep, setConfigStep] = useState(1);
@@ -60,30 +62,62 @@ export default function Bind() {
   const handleCompleteSetup = async () => {
     setStep('success');
     if (user) {
-      const newRobotId = Date.now().toString();
+      const newRobotId = "ZH-" + Date.now().toString().slice(-8);
       const newRobot = {
         id: newRobotId,
-        name: `智护机器人 - 新设备`,
+        name: `智护机器人 - 01`,
         status: 'online',
         battery: 100,
-        wifi: wifiSsid,
+        wifi: wifiSsid || '智护专网 (5G)',
         ownerId: user.uid,
+        lastActive: new Date().toISOString(),
+        serialNumber: serialNumber,
         settings: {
           volume: 80,
-          sensitivity: '中等'
+          brightness: 70,
+          fallDetection: true,
+          voiceAssistant: true
         }
       };
       
       try {
+        // 1. 保存机器人信息
         await setDoc(doc(db, 'robots', newRobotId), newRobot);
+        
+        // 2. 创建或合并主人档案
+        const ownerId = "owner_" + user.uid;
+        await setDoc(doc(db, 'owners', ownerId), {
+          id: ownerId,
+          userId: user.uid,
+          name: ownerName || '智护主人',
+          phone: ownerPhone || '',
+          isDefault: true,
+          robotIds: [newRobotId],
+          defaultRobotId: newRobotId,
+          age: 70,
+          bloodType: 'A型',
+          chronicDisease: '无',
+          allergies: '无',
+          evaluation: '健康评估良好',
+          medicalRecord: '无重要病史',
+          dietaryAdvice: '低盐低脂饮食',
+          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
+          updatedAt: new Date().toISOString()
+        }, { merge: true });
+
+        // 3. 更新系统状态
+        setHasRobotBound(true);
+        
+        // 延迟跳转以显示成功状态
+        setTimeout(() => {
+          navigate('/', { replace: true });
+        }, 1500);
+
       } catch(e) {
-        handleFirestoreError(e, 0 as any, `robots/${newRobotId}`);
+        console.error("Binding failed:", e);
+        handleFirestoreError(e, 0 as any, `bind_process`);
       }
     }
-    setHasRobotBound(true);
-    setTimeout(() => {
-      navigate('/');
-    }, 2000);
   };
 
   return (
@@ -93,107 +127,79 @@ export default function Bind() {
         <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 active:scale-95 transition-transform">
           <ChevronLeft className="w-6 h-6" />
         </button>
-        <h1 className="text-xl font-black text-slate-900 tracking-tight">智护设备绑定</h1>
+        <h1 className="text-xl font-black text-slate-900 tracking-tight">智护机器人绑定</h1>
         <div className="w-10" />
       </div>
 
       <div className="flex-1 overflow-y-auto px-6 pb-24 scrollbar-hide">
         <AnimatePresence mode="wait">
-          {step === 'initial' && (
+          {step === 'manual' && (
             <motion.div 
-              key="initial"
+              key="manual"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="space-y-8 mt-4"
+              className="space-y-6 mt-4"
             >
-              {/* Method Tabs */}
-              <div className="flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
-                <button 
-                  onClick={() => setMethod('qr')}
-                  className={`flex-1 py-2.5 rounded-xl flex items-center justify-center gap-2 text-[11px] font-black transition-all ${method === 'qr' ? 'bg-white text-brand-blue shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-                >
-                  <QrCode className="w-3.5 h-3.5" />
-                  扫码绑定
-                </button>
-                <button 
-                  onClick={() => setMethod('search')}
-                  className={`flex-1 py-2.5 rounded-xl flex items-center justify-center gap-2 text-[11px] font-black transition-all ${method === 'search' ? 'bg-white text-brand-blue shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-                >
-                  <Bluetooth className="w-3.5 h-3.5" />
-                  搜索设备
-                </button>
-                <button 
-                  onClick={() => setMethod('manual')}
-                  className={`flex-1 py-2.5 rounded-xl flex items-center justify-center gap-2 text-[11px] font-black transition-all ${method === 'manual' ? 'bg-white text-brand-blue shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-                >
-                  <Keyboard className="w-3.5 h-3.5" />
-                  序列号
-                </button>
-              </div>
+              {/* Compact Form Card */}
+              <div className="bg-slate-50/50 rounded-[32px] p-6 border border-slate-100 shadow-sm">
+                <div className="flex items-center gap-2 mb-6">
+                  <div className="w-1.5 h-4 bg-brand-blue rounded-full" />
+                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">机器人与主人信息录入</h3>
+                </div>
 
-              {/* Dynamic Content Based on Method */}
-              <div className="min-h-[300px] flex flex-col items-center justify-center">
-                {method === 'qr' && (
-                  <div className="w-full flex flex-col items-center">
-                    <div className="relative p-6 bg-slate-50/50 rounded-[40px] border border-slate-100 mb-8 aspect-square w-64 flex items-center justify-center">
-                      <div className="absolute inset-0 border-2 border-brand-blue/30 rounded-[40px] animate-pulse" />
-                      <div className="p-8 bg-white rounded-3xl shadow-xl">
-                        <QrCode className="w-32 h-32 text-slate-800 opacity-90" />
-                      </div>
-                    </div>
-                    <div className="bg-blue-50 border border-blue-100 p-4 rounded-2xl flex gap-3 items-center w-full">
-                       <Info className="w-5 h-5 text-brand-blue shrink-0" />
-                       <p className="text-[11px] text-brand-blue font-bold leading-relaxed">
-                         请确保机器人已开机并进入“待绑定”状态，扫描机器人屏幕上显示的二维码即可开始。
-                       </p>
-                    </div>
-                  </div>
-                )}
-
-                {method === 'search' && (
-                  <div className="w-full flex flex-col items-center gap-8 py-10">
-                     <div className="relative">
-                        <div className="w-32 h-32 rounded-full border-4 border-brand-blue/10 flex items-center justify-center">
-                           <Bluetooth className="w-12 h-12 text-brand-blue animate-bounce" />
-                        </div>
-                        <div className="absolute inset-0 rounded-full border-2 border-brand-blue animate-ping opacity-20" />
-                     </div>
-                     <div className="text-center">
-                        <h3 className="text-base font-black text-slate-900 mb-2">正在搜索附近的智护设备</h3>
-                        <p className="text-xs text-slate-400 font-bold max-w-[200px] mx-auto leading-relaxed">
-                          请开启手机蓝牙与定位，并将机器人置于 5 米范围内
-                        </p>
-                     </div>
-                     <button onClick={handleSearch} className="px-6 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-black uppercase tracking-widest text-slate-500 flex items-center gap-2 hover:bg-slate-100 transition-colors">
-                        <Search className="w-3.5 h-3.5" />
-                        重新搜索
-                     </button>
-                  </div>
-                )}
-
-                {method === 'manual' && (
-                  <div className="w-full space-y-6">
-                    <div className="space-y-2">
-                      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">设备序列号</label>
+                <div className="space-y-5">
+                  {/* Serial Number */}
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">设备序列号 🔢</label>
+                    <div className="relative">
                       <input 
                         type="text" 
                         value={serialNumber}
                         onChange={(e) => setSerialNumber(e.target.value.toUpperCase())}
                         placeholder="例如: ZH-ROBOT-88x9"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm font-black focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/5 outline-none transition-all"
+                        className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 text-sm font-black focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/5 outline-none transition-all"
                       />
-                    </div>
-                    <div className="p-5 bg-slate-50 border border-slate-100 rounded-2xl">
-                      <p className="text-[11px] text-slate-400 font-bold leading-relaxed">
-                        序列号位于机器人底部贴纸，或在机器人的“设置 - 关于设备”中查看。格式通常为: ZH-XXXX-XXXX
-                      </p>
+                      <button className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-brand-blue/5 flex items-center justify-center text-brand-blue active:scale-95 transition-transform hover:bg-brand-blue/10">
+                        <QrCode className="w-5 h-5" />
+                      </button>
                     </div>
                   </div>
-                )}
+
+                  {/* Owner Info Grid */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">主人姓名 👤</label>
+                      <input 
+                        type="text" 
+                        value={ownerName}
+                        onChange={(e) => setOwnerName(e.target.value)}
+                        placeholder="王大爷"
+                        className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 text-sm font-black focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/5 outline-none transition-all"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">联系电话 📱</label>
+                      <input 
+                        type="tel" 
+                        value={ownerPhone}
+                        onChange={(e) => setOwnerPhone(e.target.value)}
+                        placeholder="138-xxxx"
+                        className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 text-sm font-black focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/5 outline-none transition-all"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 p-4 bg-blue-50/50 rounded-2xl border border-blue-100/50">
+                  <p className="text-[10px] text-brand-blue font-bold leading-relaxed flex gap-2">
+                    <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                    绑定后，系统将自动为此终端开启专属看护通道，并同步您的健康档案。
+                  </p>
+                </div>
               </div>
 
-              {/* Actions Footer */}
+              {/* Actions */}
               <div className="space-y-4 pt-4">
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <input 
@@ -204,34 +210,19 @@ export default function Bind() {
                     className="w-4 h-4 rounded border-slate-300 text-brand-blue focus:ring-brand-blue cursor-pointer"
                   />
                   <label htmlFor="skip-bind" className="text-[12px] text-slate-500 font-bold cursor-pointer">
-                    暂无设备，跳过绑定直接进入
+                    我已经阅读并同意《服务协议与隐私政策》
                   </label>
                 </div>
 
                 <button
                   onClick={handleStartBinding}
-                  className="w-full bg-brand-blue text-white py-5 rounded-[24px] font-black text-base shadow-xl shadow-brand-blue/20 active:scale-95 transition-all flex items-center justify-center gap-3"
+                  disabled={!serialNumber || !ownerName || !isSkipChecked}
+                  className="w-full bg-brand-blue text-white py-5 rounded-[24px] font-black text-base shadow-xl shadow-brand-blue/20 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:pointer-events-none"
                 >
-                  <span>{isSkipChecked ? '暂时跳过，进入系统' : '立即开始建立连接'}</span>
+                  <span>立即开始绑定机器人</span>
                   <ArrowRight className="w-5 h-5" />
                 </button>
               </div>
-            </motion.div>
-          )}
-
-          {step === 'searching' && (
-            <motion.div 
-              key="searching"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="flex flex-col items-center justify-center h-full pt-20"
-            >
-              <div className="w-32 h-32 flex items-center justify-center relative">
-                 <div className="absolute inset-0 border-4 border-brand-blue/20 rounded-full animate-spin border-t-brand-blue" />
-                 <Bluetooth className="w-12 h-12 text-brand-blue" />
-              </div>
-              <h2 className="mt-8 text-xl font-black text-slate-900 tracking-tight">正在搜索环境...</h2>
-              <p className="mt-2 text-sm text-slate-400 font-bold text-center max-w-[200px]">正在请求周边的蓝牙广播信号并匹配设备特征码</p>
             </motion.div>
           )}
 

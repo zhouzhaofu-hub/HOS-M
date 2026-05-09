@@ -33,6 +33,7 @@ export interface ServiceOwner {
   chronicDisease?: string;
   allergies?: string;
   evaluation?: string;
+  dietaryAdvice?: string;
   isDefault: boolean;
   robotIds?: string[];
   defaultRobotId?: string;

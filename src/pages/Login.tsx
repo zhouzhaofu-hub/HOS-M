@@ -36,17 +36,18 @@ export default function Login() {
     }
   };
 
-  // 处理苹果登录
-  const handleAppleLogin = async () => {
+  // 纯净演示模式逻辑 (苹果按钮触发)
+  const handleEmptyDemoLogin = async () => {
     setLoading(true);
     setErrorMessage(null);
-    const provider = new OAuthProvider('apple.com');
     try {
-      await signInWithPopup(auth, provider);
+      // 设置纯净模式标记
+      window.localStorage.setItem('is_empty_demo', 'true');
+      await signInAnonymously(auth);
       navigate('/');
     } catch (e) {
-      console.error("Apple login error: ", e);
-      setErrorMessage('苹果登录失败，请重试');
+      console.error("Empty demo login error: ", e);
+      setErrorMessage('开启演示失败，请重试');
     } finally {
       setLoading(false);
     }
@@ -223,11 +224,11 @@ export default function Login() {
               <svg className="w-6 h-6 text-[#07C160]" fill="currentColor" viewBox="0 0 24 24"><path d="M12.131 2C6.452 2 2 5.926 2 10.533c0 2.57 1.54 4.887 3.948 6.425.074.04.148.07.168.14.02.07.03.418.01.761a15.82 15.82 0 0 1-.36 1.944c-.031.14-.149.3-.129.35.03.05.158.04.307.01a14.735 14.735 0 0 0 4.1-1.396c.228-.13.435-.11.663-.07 1.109.212 2.316.323 3.553.323 5.679 0 10.131-3.926 10.131-8.533S17.81 2 12.131 2z" /></svg>
             </button>
             <button 
-              onClick={handleAppleLogin}
+              onClick={handleEmptyDemoLogin}
               className="w-14 h-14 rounded-2xl border border-slate-100 flex items-center justify-center hover:bg-slate-50 active:scale-90 transition-all"
             >
               <svg className="w-6 h-6 text-slate-900" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M17.046 14.372c-.03-2.613 2.148-3.882 2.247-3.938-1.22-1.782-3.117-2.023-3.791-2.062-1.61-.164-3.148.948-3.971.948-.823 0-2.091-.91-3.416-.885-1.722.027-3.313.998-4.205 2.55-1.808 3.125-.462 7.747 1.303 10.297.868 1.258 1.892 2.661 3.256 2.615 1.312-.05 1.815-.843 3.41-.843 1.583 0 2.052.843 3.424.814 1.396-.027 2.274-1.261 3.134-2.522 1-.1449 1.41-2.85 1.442-2.91-1.4-.648-2.203-2.016-2.233-3.664M14.78 6.467c.725-.873 1.215-2.09.1-4.064-.95.038-2.233.633-2.98 1.523-.668.799-1.266 2.046-1.112 3.265 1.05.08 2.228-.52 2.991-1.391"/>
+                <path d="M17.046 14.372c-.03-2.613 2.148-3.882 2.247-3.938-1.22-1.782-3.117-2.023-3.791-2.062-1.61-.164-3.148.948-3.971.948-.823 0-2.091-.91-3.416-.885-1.722.027-3.313.998-4.205 2.55-1.808 3.125-.462 7.747 1.303 10.297.868 1.258 1.892 2.661 3.256 2.615 1.312-.05 1.815-.843 3.41-.843 1.583 0 2.052.843 3.424.814 1.396-.027 2.274-1.261 3.134-2.522 1-.34 1.41-2.85 1.442-2.91-1.4-.648-2.203-2.016-2.233-3.664M14.78 6.467c.725-.873 1.215-2.09.1-4.064-.95.038-2.233.633-2.98 1.523-.668.799-1.266 2.046-1.112 3.265 1.05.08 2.228-.52 2.991-1.391"/>
               </svg>
             </button>
             <button 

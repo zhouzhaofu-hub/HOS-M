@@ -28,8 +28,12 @@ import { useAppContext } from '../context/AppContext';
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { hasRobotBound, robots, activeRobotId, setActiveRobotId } = useAppContext();
+  const { hasRobotBound, robots, activeRobotId, setActiveRobotId, owners } = useAppContext();
   const [showAlert, setShowAlert] = useState(hasRobotBound);
+  const [showOnboarding, setShowOnboarding] = useState(true);
+
+  const hasOwner = owners && owners.length > 0;
+  const showOnboardingCard = showOnboarding && (!hasOwner || !hasRobotBound);
 
   const activeRobot = robots.find(r => r.id === activeRobotId) || robots[0] || null;
 
@@ -115,6 +119,61 @@ export default function Dashboard() {
       </div>
 
       <div className="flex-1 overflow-y-auto scrollbar-hide px-4 space-y-2 pt-2 pb-16 bg-[#F8FAFC]">
+        {/* Onboarding Guide Card */}
+        <AnimatePresence>
+          {showOnboardingCard && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-brand-blue rounded-3xl p-6 shadow-xl shadow-brand-blue/20 relative overflow-hidden mb-2"
+            >
+              {/* Decorative background elements */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl pointer-events-none" />
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/5 rounded-full -ml-8 -mb-8 blur-xl pointer-events-none" />
+              
+              <div className="relative z-10">
+                <h3 className="text-xl font-black text-white italic tracking-tight mb-2">欢迎开启智护生活！</h3>
+                <p className="text-white/80 text-xs font-bold leading-relaxed mb-6">
+                   只需简单两步，即可为您或您的长辈开启全方位的智能健康守护。
+                </p>
+
+                <div className="space-y-3">
+                   {/* Single Simplified Onboarding Step */}
+                   <div className={`flex items-center gap-4 p-5 rounded-[28px] border transition-all ${!hasRobotBound ? 'bg-white border-transparent' : 'bg-white/10 border-white/20'}`}>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-sm ${!hasRobotBound ? 'bg-brand-blue text-white' : 'bg-emerald-500 text-white'}`}>
+                         {!hasRobotBound ? '1' : '✓'}
+                      </div>
+                      <div className="flex-1">
+                         <p className={`text-sm font-black tracking-tight ${!hasRobotBound ? 'text-slate-900' : 'text-white'}`}>绑定机器人 & 建立档案</p>
+                         <p className={`text-[10px] font-bold ${!hasRobotBound ? 'text-slate-400' : 'text-white/60'}`}>
+                            {hasRobotBound ? '已成功开启智护服务' : '连接终端并录入主人信息以开启AI守护'}
+                         </p>
+                      </div>
+                      {!hasRobotBound && (
+                         <button 
+                           onClick={() => navigate('/bind')}
+                           className="bg-brand-blue text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-colors shadow-lg shadow-brand-blue/20"
+                         >
+                            立即开始
+                         </button>
+                      )}
+                   </div>
+                </div>
+
+                {hasOwner && hasRobotBound && (
+                  <button 
+                    onClick={() => setShowOnboarding(false)}
+                    className="w-full mt-6 bg-white text-brand-blue py-3 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-black/10 active:scale-95 transition-all"
+                  >
+                     完成并进入主页
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Physical Status Briefing */}
         <div className="space-y-2">
           <div className="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm">

@@ -105,6 +105,7 @@ const DEFAULT_OWNERS: ServiceOwner[] = [
     allergies: '药物：青霉素 (皮疹) · 轻度 · 确认人：王医生',
     evaluation: 'ADL评 85分 · 跌倒风险：低 · 营养：良好 · 认知：正常 · 情绪：平稳',
     medicalRecord: '硝苯地平缓释片 1片/次/日；每日清晨站立平衡运动 15分钟',
+    dietaryAdvice: '低盐、低脂、高纤维饮食，晚餐不宜过饱',
     isDefault: true,
     robotIds: []
   }
@@ -170,38 +171,48 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
              }).catch(e => handleFirestoreError(e, OperationType.CREATE, `users/${u.uid}`));
 
              // 为新用户创建一个默认的服务主人档案
-             const ownerId = "owner_" + Date.now();
-             const robotId1 = "robot_A_" + u.uid;
-             const robotId2 = "robot_B_" + u.uid;
+             const ownerId = "owner_" + u.uid;
+             
+             // 检查是否是“纯净演示”模式（模拟点击苹果按钮后的空状态）
+             const isEmptyDemo = window.localStorage.getItem('is_empty_demo') === 'true';
 
-             await setDoc(doc(db, 'owners', ownerId), {
-               ...DEFAULT_OWNERS[0],
-               id: ownerId,
-               userId: u.uid,
-               robotIds: [robotId1, robotId2],
-               defaultRobotId: robotId1
-             });
+             if (!isEmptyDemo) {
+               const robotId1 = "robot_A_" + u.uid;
+               const robotId2 = "robot_B_" + u.uid;
 
-             // 默认创建2个机器人
-             await setDoc(doc(db, 'robots', robotId1), {
-               ...DEFAULT_ROBOTS[0],
-               id: robotId1,
-               name: '智护助手-01号',
-               ownerId: u.uid,
-               status: 'online',
-               battery: 95,
-               wifi: '信号 • 极强'
-             });
+               await setDoc(doc(db, 'owners', ownerId), {
+                 ...DEFAULT_OWNERS[0],
+                 id: ownerId,
+                 userId: u.uid,
+                 robotIds: [robotId1, robotId2],
+                 defaultRobotId: robotId1,
+                 isDefault: true
+               });
 
-             await setDoc(doc(db, 'robots', robotId2), {
-               ...DEFAULT_ROBOTS[1],
-               id: robotId2,
-               name: '智护助手-02号',
-               ownerId: u.uid,
-               status: 'online',
-               battery: 88,
-               wifi: '信号 • 强'
-             });
+               // 默认创建2个机器人
+               await setDoc(doc(db, 'robots', robotId1), {
+                 ...DEFAULT_ROBOTS[0],
+                 id: robotId1,
+                 name: '智护助手-01号',
+                 ownerId: u.uid,
+                 status: 'online',
+                 battery: 95,
+                 wifi: '信号 • 极强'
+               });
+
+               await setDoc(doc(db, 'robots', robotId2), {
+                 ...DEFAULT_ROBOTS[1],
+                 id: robotId2,
+                 name: '智护助手-02号',
+                 ownerId: u.uid,
+                 status: 'online',
+                 battery: 88,
+                 wifi: '信号 • 强'
+               });
+             } else {
+               // 纯净模式下不创建任何数据，但清除标记
+               window.localStorage.removeItem('is_empty_demo');
+             }
           }
         } catch (e) {
           handleFirestoreError(e, OperationType.GET, `users/${u.uid}`);
