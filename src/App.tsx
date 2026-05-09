@@ -13,8 +13,6 @@ import Control from './pages/Control';
 import Health from './pages/Health';
 import Profile from './pages/Profile';
 import Messages from './pages/Messages';
-import Maintenance from './pages/Maintenance';
-import RobotSettings from './pages/RobotSettings';
 import ElderlyProfile from './pages/ElderlyProfile';
 import SecuritySettings from './pages/SecuritySettings';
 import FamilySharing from './pages/FamilySharing';
@@ -52,8 +50,6 @@ function AppRoutes() {
               <Route path="/health" element={<Health />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/messages" element={<Messages />} />
-              <Route path="/maintenance" element={<Maintenance />} />
-              <Route path="/robot-settings" element={<RobotSettings />} />
               <Route path="/elderly-profile" element={<ElderlyProfile />} />
               <Route path="/security" element={<SecuritySettings />} />
               <Route path="/family-sharing" element={<FamilySharing />} />

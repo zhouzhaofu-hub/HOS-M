@@ -2,19 +2,6 @@ import React, { useState } from 'react';
 import { Layout } from '../components/Layout';
 import { MOCK_USER } from '../constants';
 import { Avatar } from '../components/Avatar';
-import { 
-  ChevronRight, 
-  ChevronDown, 
-  UserPlus, 
-  Cpu, 
-  Settings,
-  FileText, 
-  MessageSquare, 
-  ShieldCheck, 
-  LogOut,
-  X,
-  Check
-} from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { auth } from '../firebase';
@@ -24,7 +11,7 @@ import { useAppContext } from '../context/AppContext';
 export default function Profile() {
   const navigate = useNavigate();
   const { user } = useAppContext();
-  const [userName, setUserName] = useState(user?.displayName || '智护用户');
+  const [userName, setUserName] = useState(user?.displayName || '嘉华');
   const [isEditing, setIsEditing] = useState(false);
   const [tempName, setTempName] = useState(user?.displayName || '');
 
@@ -46,151 +33,164 @@ export default function Profile() {
 
   return (
     <Layout>
-      <div className="flex flex-col h-full bg-[#f2f2f2]">
+      <div className="flex flex-col h-full bg-[#F8FAFC]">
         <div className="flex-1 overflow-y-auto scrollbar-hide pb-20">
           
-          {/* 用户基础信息卡片 - 类似微信风格 */}
-          <div 
-            onClick={() => {
-              setIsEditing(true);
-              setTempName(userName);
-            }} 
-            className="bg-white px-6 pt-16 pb-8 flex items-center gap-5 active:bg-slate-50 transition-colors cursor-pointer"
-          >
-            <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-100 shrink-0 shadow-sm border border-slate-100">
-              {/* 使用用户的头像，如果不存在则显示默认头像 */}
-              <Avatar src={user?.photoURL || MOCK_USER.avatar} className="w-full h-full" />
+          {/* Top Gradient Header */}
+          <div className="relative pb-12">
+             <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-500 rounded-b-[48px]" />
+             
+             {/* User Info Container */}
+             <div className="relative px-8 pt-16 flex items-center gap-5">
+               <div 
+                 onClick={() => {
+                   setIsEditing(true);
+                   setTempName(userName);
+                 }}
+                 className="w-24 h-24 rounded-[32px] overflow-hidden border-4 border-white/20 shadow-xl bg-white shrink-0 cursor-pointer active:scale-95 transition-transform"
+               >
+                 <Avatar src={user?.photoURL || MOCK_USER.avatar} className="w-full h-full object-cover" />
+               </div>
+               <div className="flex-1 text-white">
+                 <h2 className="text-3xl font-black tracking-tight flex items-center gap-2">
+                   {userName}
+                 </h2>
+                 <p className="text-white/60 text-xs font-bold mt-1 tracking-widest uppercase">CARE ID: {user?.uid.slice(-8).toUpperCase() || '20260422'}</p>
+                 
+                 <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/20 backdrop-blur-md rounded-full border border-white/10 shadow-sm">
+                   <span className="text-[10px]">👑</span>
+                   <span className="text-[10px] font-black uppercase tracking-widest">超级管理员</span>
+                 </div>
+               </div>
+             </div>
+
+             {/* Stats Card */}
+             <div className="relative px-6 mt-8">
+               <div className="bg-white rounded-[40px] p-8 shadow-xl shadow-blue-900/5 flex items-center justify-between border border-white/50">
+                 <div className="flex-1 text-center border-r border-slate-50">
+                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">守护天数</p>
+                   <p className="text-2xl font-black text-slate-800">452</p>
+                 </div>
+                 <div className="flex-1 text-center border-r border-slate-50">
+                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">关联设备</p>
+                   <p className="text-2xl font-black text-slate-800">2</p>
+                 </div>
+                 <div className="flex-1 text-center">
+                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">依从性评分</p>
+                   <p className="text-2xl font-black text-blue-500">优秀</p>
+                 </div>
+               </div>
+             </div>
+          </div>
+
+          <div className="px-6 space-y-10 mt-2">
+            {/* Section 1: Guardian Management */}
+            <div>
+              <h3 className="px-2 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">守护管理系统</h3>
+              <div className="space-y-4">
+                <MenuCard 
+                  to="/elderly-profile"
+                  icon={<div className="p-3 bg-blue-50 rounded-[20px] text-blue-500">
+                    <span className="text-xl">📋</span>
+                  </div>}
+                  label="服务主人档案管理"
+                />
+                <MenuCard 
+                  to="/family-sharing"
+                  icon={<div className="p-3 bg-fuchsia-50 rounded-[20px] text-fuchsia-500">
+                    <span className="text-xl">👥</span>
+                  </div>}
+                  label="家人共享权限"
+                  subtext="当前 3 人共同守护"
+                />
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <h2 className="text-xl font-bold text-text-main tracking-tight truncate">{userName}</h2>
-              <div className="flex items-center justify-between mt-1">
-                {/* 显示脱敏后的 UID 模拟账号 */}
-                <p className="text-sm text-text-muted">智护账号: {user?.uid.slice(-8).toUpperCase()}</p>
-                <ChevronRight className="w-5 h-5 text-slate-300" />
+
+            {/* Section 2: Account Preferences */}
+            <div>
+              <h3 className="px-2 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">账户与偏好</h3>
+              <div className="space-y-4">
+                <MenuCard 
+                  to="/messages"
+                  icon={<div className="p-3 bg-slate-100 rounded-[20px] text-slate-500">
+                    <span className="text-xl">🔔</span>
+                  </div>}
+                  label="通知与预警设置"
+                />
+              </div>
+            </div>
+
+            {/* Section 3: More (Safety) */}
+            <div>
+              <div className="space-y-4">
+                <MenuCard 
+                   onClick={handleLogout}
+                   isDanger
+                   icon={<div className="p-3 bg-rose-50 rounded-[20px] text-rose-500">
+                     <span className="text-xl">🚪</span>
+                   </div>}
+                   label="退出当前账号"
+                 />
               </div>
             </div>
           </div>
 
-          <div className="h-2" />
-
-          {/* 分组一：家庭与分享 */}
-          <div className="bg-white divide-y divide-slate-100">
-             <WeChatListItem 
-               to="/family-sharing"
-               icon={<span className="text-xl">👥</span>} 
-               label="家人分享" 
-             />
+          <div className="py-12 flex flex-col items-center">
+            <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">Smart Guardian OS v1.2.0</p>
+            <div className="mt-2 w-1 h-1 rounded-full bg-slate-200" />
           </div>
-
-          <div className="h-2" />
-
-          {/* 分组二：设备与档案 */}
-          <div className="bg-white divide-y divide-slate-100">
-             <WeChatListItem 
-               to="/bind"
-               icon={<span className="text-xl">🤖</span>} 
-               label="设备与绑定" 
-             />
-             <WeChatListItem 
-               to="/robot-settings"
-               icon={<span className="text-xl">⚙️</span>} 
-               label="机器人配置" 
-             />
-             <WeChatListItem 
-               to="/elderly-profile"
-               icon={<span className="text-xl">📋</span>} 
-               label="服务主人档案" 
-             />
-          </div>
-
-          <div className="h-2" />
-
-          {/* 分组三：系统与安全 */}
-          <div className="bg-white divide-y divide-slate-100">
-             <WeChatListItem 
-               to="/messages"
-               icon={<span className="text-xl">💬</span>} 
-               label="消息记录" 
-             />
-             <WeChatListItem 
-               to="/security"
-               icon={<span className="text-xl">🛡️</span>} 
-               label="隐私与安全" 
-             />
-          </div>
-
-          <div className="h-2" />
-
-          {/* 分组四：退出登录 */}
-          <div className="bg-white">
-            <button 
-              onClick={handleLogout}
-              className="w-full py-4 text-center text-red-500 text-[16px] font-medium active:bg-slate-50 transition-colors flex items-center justify-center gap-2"
-            >
-              <span className="text-xl">🚪</span>
-              退出登录
-            </button>
-          </div>
-
-          <p className="text-center text-[11px] text-slate-400 mt-10 tracking-wide font-medium">智护OS系统 v1.0.0 稳定版</p>
         </div>
       </div>
 
       {/* Edit Name Modal */}
       <AnimatePresence>
         {isEditing && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm">
             <motion.div 
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="w-full max-w-[320px] bg-white rounded-[24px] overflow-hidden shadow-2xl flex flex-col"
+              className="w-full max-w-[320px] bg-white rounded-[40px] overflow-hidden shadow-2xl flex flex-col border border-white"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="bg-slate-50 px-6 py-5 border-b border-slate-100 flex items-center justify-between">
+              <div className="bg-slate-50/50 px-8 py-6 flex items-center justify-between">
                 <div>
                   <h3 className="text-base font-black text-slate-900 leading-none">维护姓名</h3>
                   <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1.5">EDIT PROFILE NAME</p>
                 </div>
                 <button 
                   onClick={() => setIsEditing(false)} 
-                  className="w-8 h-8 rounded-full bg-slate-200/50 flex items-center justify-center text-slate-500 active:scale-90 transition-transform"
+                  className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-slate-500 active:scale-90 transition-transform shadow-sm"
                 >
-                  <X className="w-4 h-4" />
+                  <span className="text-xs leading-none">✕</span>
                 </button>
               </div>
 
-              <div className="p-6">
-                <div className="bg-slate-50 rounded-2xl border border-slate-100 p-4 focus-within:border-brand-blue/30 focus-within:bg-white transition-all">
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">真实姓名</label>
+              <div className="p-8">
+                <div className="bg-slate-50 rounded-[24px] border border-slate-100 p-5 focus-within:border-blue-500/20 focus-within:bg-white transition-all">
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">您的称呼</label>
                   <input 
                     autoFocus
                     type="text"
                     value={tempName}
                     onChange={(e) => setTempName(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
-                    placeholder="请输入您的姓名"
-                    className="w-full bg-transparent text-lg font-bold text-slate-900 outline-none placeholder:text-slate-300"
+                    placeholder="请输入姓名"
+                    className="w-full bg-transparent text-xl font-black text-slate-900 outline-none placeholder:text-slate-200"
                   />
                 </div>
                 
-                <div className="mt-4 text-[11px] text-slate-400 font-medium px-1 flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-brand-blue mt-1 shrink-0" />
-                  姓名将用于家人分享与紧急预警时的身份识别。
-                </div>
-
-                <div className="mt-8 flex gap-3">
+                <div className="mt-10 flex gap-3">
                   <button 
                     onClick={() => setIsEditing(false)}
-                    className="flex-1 py-3.5 rounded-2xl bg-slate-100 text-slate-500 font-black text-xs uppercase tracking-widest active:scale-95 transition-all"
+                    className="flex-1 py-4 rounded-2xl bg-slate-100 text-slate-500 font-black text-[11px] uppercase tracking-widest"
                   >
                     取消
                   </button>
                   <button 
                     onClick={handleSaveName}
-                    className="flex-3 py-3.5 rounded-2xl bg-brand-blue text-white font-black text-xs uppercase tracking-widest active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg shadow-brand-blue/20"
+                    className="flex-3 py-4 rounded-2xl bg-blue-600 text-white font-black text-[11px] uppercase tracking-widest shadow-lg shadow-blue-600/20"
                   >
-                    <Check className="w-4 h-4" />
                     确认修改
                   </button>
                 </div>
@@ -203,21 +203,41 @@ export default function Profile() {
   );
 }
 
-function WeChatListItem({ icon, label, to }: { icon: React.ReactNode, label: string, to?: string }) {
+function MenuCard({ 
+  icon, 
+  label, 
+  subtext, 
+  to, 
+  onClick, 
+  isDanger 
+}: { 
+  icon: React.ReactNode, 
+  label: string, 
+  subtext?: string, 
+  to?: string,
+  onClick?: () => void,
+  isDanger?: boolean
+}) {
   const content = (
-    <div className="flex items-center justify-between px-6 py-4 hover:bg-slate-50 transition-colors group active:bg-slate-50">
-      <div className="flex items-center gap-4">
-        <div className="w-6 h-6 flex items-center justify-center shrink-0">
+    <button 
+      onClick={onClick}
+      className="w-full bg-white rounded-[32px] p-6 pr-8 flex items-center justify-between group active:scale-[0.98] transition-all border border-slate-100/50 shadow-sm"
+    >
+      <div className="flex items-center gap-5">
+        <div className="shrink-0 transition-transform group-hover:scale-110">
           {icon}
         </div>
-        <span className="text-[17px] font-medium text-text-main">{label}</span>
+        <div className="text-left">
+          <p className={`text-[17px] font-black ${isDanger ? 'text-rose-500' : 'text-slate-800'}`}>{label}</p>
+          {subtext && <p className="text-xs font-bold text-slate-400 mt-0.5">{subtext}</p>}
+        </div>
       </div>
-      <ChevronRight className="w-5 h-5 text-slate-300" />
-    </div>
+      <span className="text-slate-200 group-hover:text-slate-400 transition-colors text-lg opacity-50">➜</span>
+    </button>
   );
 
   if (to) {
-    return <Link to={to}>{content}</Link>;
+    return <Link to={to} className="block">{content}</Link>;
   }
 
   return content;

@@ -15,41 +15,41 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         <NavLink
           to="/"
           className={({ isActive }) =>
-            cn("flex flex-col items-center gap-1 transition-colors", isActive ? "text-brand-blue" : "text-text-muted")
+            cn("flex flex-col items-center gap-1.5 transition-all active:scale-95", isActive ? "text-brand-blue" : "text-text-muted")
           }
         >
-          <Home className="w-5 h-5" fill="currentColor" fillOpacity={0} />
-          <span className="text-[12px] font-bold leading-none">首页</span>
+          <span className="text-xl leading-none">🏠</span>
+          <span className="text-[12px] font-black leading-none uppercase tracking-widest">首页</span>
         </NavLink>
         
         <NavLink
           to="/control"
           className={({ isActive }) =>
-            cn("flex flex-col items-center gap-1 transition-colors", isActive ? "text-brand-blue" : "text-text-muted")
+            cn("flex flex-col items-center gap-1.5 transition-all active:scale-95", isActive ? "text-brand-blue" : "text-text-muted")
           }
         >
-          <Gamepad2 className="w-5 h-5" />
-          <span className="text-[12px] font-bold leading-none">控制</span>
+          <span className="text-xl leading-none">🎮</span>
+          <span className="text-[12px] font-black leading-none uppercase tracking-widest">控制</span>
         </NavLink>
         
         <NavLink
           to="/health"
           className={({ isActive }) =>
-            cn("flex flex-col items-center gap-1 transition-colors", isActive ? "text-brand-blue" : "text-text-muted")
+            cn("flex flex-col items-center gap-1.5 transition-all active:scale-95", isActive ? "text-brand-blue" : "text-text-muted")
           }
         >
-          <Activity className="w-5 h-5" />
-          <span className="text-[12px] font-bold leading-none">健康</span>
+          <span className="text-xl leading-none">📈</span>
+          <span className="text-[12px] font-black leading-none uppercase tracking-widest">健康</span>
         </NavLink>
         
         <NavLink
           to="/profile"
           className={({ isActive }) =>
-            cn("flex flex-col items-center gap-1 transition-colors", isActive ? "text-brand-blue" : "text-text-muted")
+            cn("flex flex-col items-center gap-1.5 transition-all active:scale-95", isActive ? "text-brand-blue" : "text-text-muted")
           }
         >
-          <User className="w-5 h-5" />
-          <span className="text-[12px] font-bold leading-none">我的</span>
+          <span className="text-xl leading-none">👤</span>
+          <span className="text-[12px] font-black leading-none uppercase tracking-widest">我的</span>
         </NavLink>
       </nav>
 

@@ -69,12 +69,23 @@ export default function HealthReport() {
   const { hasRobotBound } = useAppContext();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const type = searchParams.get('type') || 'weekly'; // weekly or monthly
+  const type = searchParams.get('type') || 'weekly'; // weekly, monthly, quarterly
   const [activeMetric, setActiveMetric] = useState('summary');
 
   const isWeekly = type === 'weekly';
-  const reportTitle = isWeekly ? '周度健康深度评估' : '月度健康全案报告';
-  const reportPeriod = isWeekly ? '2026.04.28 - 2026.05.04' : '2026.04.01 - 2026.04.30';
+  const isMonthly = type === 'monthly';
+  const isQuarterly = type === 'quarterly';
+
+  const reportTitle = isWeekly ? '周度健康评估报告' : isMonthly ? '月度健康评估报告' : '季度健康评估报告';
+  const reportPeriod = isWeekly ? '2026.04.28 - 2026.05.04' : isMonthly ? '2026.04.01 - 2026.04.30' : '2026.04.01 - 2026.06.30';
+
+  const handleShare = () => {
+    alert('正在生成分享链接...');
+  };
+
+  const handleDownload = () => {
+    alert('正在准备 PDF 下载...');
+  };
 
   return (
     <Layout>
@@ -95,12 +106,14 @@ export default function HealthReport() {
           </div>
           <div className="flex gap-2">
             <button 
+              onClick={handleDownload}
               disabled={!hasRobotBound}
               className={`w-10 h-10 rounded-xl bg-brand-blue/5 text-brand-blue flex items-center justify-center border border-brand-blue/10 active:scale-95 ${!hasRobotBound && 'opacity-30'}`}
             >
               <Download className="w-5 h-5" />
             </button>
             <button 
+              onClick={handleShare}
               disabled={!hasRobotBound}
               className={`w-10 h-10 rounded-xl bg-brand-blue text-white flex items-center justify-center shadow-lg shadow-brand-blue/20 active:scale-95 ${!hasRobotBound && 'opacity-30'}`}
             >
@@ -129,112 +142,20 @@ export default function HealthReport() {
             </div>
           )}
 
-          {/* Executive Summary Card */}
+          {/* Brief Overview (One sentence) */}
           <div className="p-6">
             <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-[32px] p-6 border border-border-base shadow-sm mb-6"
+               initial={{ opacity: 0, y: 10 }}
+               animate={{ opacity: 1, y: 0 }}
+               className="bg-white rounded-[24px] p-5 border border-border-base shadow-sm text-center"
             >
-              <div className="flex items-center gap-2 mb-4">
-                <div className={`w-2 h-2 rounded-full ${hasRobotBound ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`} />
-                <h2 className="text-sm font-black text-text-main uppercase tracking-widest">
-                  总体评分: {hasRobotBound ? '优 (92/100)' : '资料缺失 (-/-)'}
-                </h2>
-              </div>
-              
-              <div className="grid grid-cols-3 gap-3 mb-6">
-                <div className="bg-slate-50 rounded-2xl p-4 text-center">
-                  <p className="text-[9px] font-bold text-text-muted mb-1">生命体征</p>
-                  <p className={`text-lg font-black ${hasRobotBound ? 'text-emerald-500' : 'text-slate-300'}`}>{hasRobotBound ? '稳健' : '-'}</p>
-                </div>
-                <div className="bg-slate-50 rounded-2xl p-4 text-center">
-                  <p className="text-[9px] font-bold text-text-muted mb-1">服药依从</p>
-                  <p className={`text-lg font-black ${hasRobotBound ? 'text-emerald-500' : 'text-slate-300'}`}>{hasRobotBound ? '97%' : '-'}</p>
-                </div>
-                <div className="bg-slate-50 rounded-2xl p-4 text-center">
-                  <p className="text-[9px] font-bold text-text-muted mb-1">风险系数</p>
-                  <p className={`text-lg font-black ${hasRobotBound ? 'text-blue-500' : 'text-slate-300'}`}>{hasRobotBound ? '低' : '-'}</p>
-                </div>
-              </div>
-
-              <div className={`rounded-2xl p-4 ${hasRobotBound ? 'bg-emerald-50/50 border border-emerald-100' : 'bg-slate-50 border border-slate-100'}`}>
-                <div className="flex items-center gap-2 mb-2">
-                  <Zap className={`w-3 h-3 ${hasRobotBound ? 'text-emerald-600 fill-emerald-600' : 'text-slate-400'}`} />
-                  <span className={`text-[10px] font-black uppercase tracking-widest ${hasRobotBound ? 'text-emerald-700' : 'text-slate-400'}`}>核心结论</span>
-                </div>
-                <p className={`text-xs leading-relaxed font-medium tracking-tight ${hasRobotBound ? 'text-emerald-900/80' : 'text-slate-400'}`}>
-                  {hasRobotBound ? (
-                    isWeekly 
-                      ? '本周患者各项指标表现优异。血压均值 122/78 处于健康区间。睡眠质量有所提升，平均深度睡眠占比增加 15%。建议继续保持当前的饮食与运动节奏。'
-                      : '4月度总体指标稳中向好。心率变异性指标较上月提升 8%，显示自主神经系统功能恢复。需注意月底由于气候变迁引起的轻微晨间血压波动。'
-                  ) : '由于缺乏连续的设备监测数据，系统无法生成本时段的核心健康评估结论。'}
-                </p>
-              </div>
+               <p className="text-xs font-black text-text-main leading-relaxed">
+                 {hasRobotBound ? `本报告周期内，您的身体机能整体表现${isQuarterly ? '极其卓越' : '稳健'}，核心指标均维持在预定义的健康安全阈值内。` : '由于实时监测时长未达标，系统暂处于数据沉淀期，暂无法生成本周期的简短概述。'}
+               </p>
             </motion.div>
+          </div>
 
-            {/* NEW: Environmental & Predictive Analysis Segment */}
-            <AnimatePresence>
-              {hasRobotBound && (
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-white rounded-[32px] p-6 border border-border-base shadow-sm mb-6"
-                >
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
-                        <BrainCircuit className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h3 className="font-black text-text-main">AI 环境关联风险预判</h3>
-                        <p className="text-[10px] text-text-muted font-bold tracking-widest uppercase">环境风险关联分析</p>
-                      </div>
-                    </div>
-                    <div className="bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
-                      <span className="text-[9px] font-black text-emerald-600 uppercase">系统置信度 96%</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4 mb-6">
-                    <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                      <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center text-orange-400 shrink-0 shadow-sm">
-                        <Thermometer className="w-4 h-4" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-[10px] font-black text-text-main mb-1">温湿关联分析</p>
-                        <p className="text-[11px] leading-relaxed text-text-muted font-medium">
-                          本周期室内平均湿度上升 15%，系统监测到患者夜间呼吸深浅度随之出现 8.4% 的波动相关性。已锁定“潮湿诱发呼吸负荷”为潜在风险因子。
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                      <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center text-blue-400 shrink-0 shadow-sm">
-                        <Wind className="w-4 h-4" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-[10px] font-black text-text-main mb-1">空气质量前瞻</p>
-                        <p className="text-[11px] leading-relaxed text-text-muted font-medium">
-                          预测下周花粉指数将达“中高”级别。AI 建议：5月4日-5月8日期间，机器人将自动关闭卧室新风至内循环模式，预防过敏性哮喘风险。
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-indigo-50/50 rounded-2xl p-4 border border-indigo-100">
-                     <div className="flex justify-between items-center mb-3">
-                        <span className="text-[10px] font-black text-indigo-700 uppercase tracking-tight">下周期稳定性预测展望</span>
-                        <span className="text-[10px] font-black text-indigo-700">预估 88/100</span>
-                     </div>
-                     <div className="h-1.5 bg-indigo-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-indigo-500 w-[88%] rounded-full shadow-[0_0_8px_rgba(99,102,241,0.4)]" />
-                     </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
+          <div className="px-6 pb-6 space-y-6">
             {/* Metrics Breakdown */}
             <div className="space-y-6">
               {/* 心率趋势 */}
@@ -391,8 +312,53 @@ export default function HealthReport() {
                 </div>
               </div>
 
-              {/* AI 深度建议 */}
-              <div className="bg-slate-900 rounded-[32px] p-8 text-white relative overflow-hidden mb-12">
+              {/* AI Executive Summary - Moved to end */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white rounded-[32px] p-6 border border-border-base shadow-sm"
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <div className={`w-2 h-2 rounded-full ${hasRobotBound ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`} />
+                  <h2 className="text-sm font-black text-text-main uppercase tracking-widest">
+                    AI 深度汇总评估
+                  </h2>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-3 mb-6">
+                  <div className="bg-slate-50 rounded-2xl p-4 text-center">
+                    <p className="text-[9px] font-bold text-text-muted mb-1">生命体征</p>
+                    <p className={`text-lg font-black ${hasRobotBound ? 'text-emerald-500' : 'text-slate-300'}`}>{hasRobotBound ? '稳健' : '-'}</p>
+                  </div>
+                  <div className="bg-slate-50 rounded-2xl p-4 text-center">
+                    <p className="text-[9px] font-bold text-text-muted mb-1">服药依从</p>
+                    <p className={`text-lg font-black ${hasRobotBound ? 'text-emerald-500' : 'text-slate-300'}`}>{hasRobotBound ? '97%' : '-'}</p>
+                  </div>
+                  <div className="bg-slate-50 rounded-2xl p-4 text-center">
+                    <p className="text-[9px] font-bold text-text-muted mb-1">风险系数</p>
+                    <p className={`text-lg font-black ${hasRobotBound ? 'text-blue-500' : 'text-slate-300'}`}>{hasRobotBound ? '低' : '-'}</p>
+                  </div>
+                </div>
+
+                <div className={`rounded-2xl p-4 ${hasRobotBound ? 'bg-indigo-50/50 border border-indigo-100' : 'bg-slate-50 border border-slate-100'}`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Zap className={`w-3 h-3 ${hasRobotBound ? 'text-indigo-600 fill-indigo-600' : 'text-slate-400'}`} />
+                    <span className={`text-[10px] font-black uppercase tracking-widest ${hasRobotBound ? 'text-indigo-700' : 'text-slate-400'}`}>核心评估结论</span>
+                  </div>
+                  <p className={`text-xs leading-relaxed font-medium tracking-tight ${hasRobotBound ? 'text-indigo-900/80' : 'text-slate-400'}`}>
+                    {hasRobotBound ? (
+                      isWeekly 
+                        ? '本周患者各项指标表现优异。血压均值 122/78 处于健康区间。睡眠质量有所提升，平均深度睡眠占比增加 15%。建议继续保持当前的饮食与运动节奏。'
+                        : isMonthly
+                        ? '4月度总体指标稳中向好。心率变异性指标较上月提升 8%，显示自主神经系统功能恢复。需注意月底由于气候变迁引起的轻微晨间血压波动。'
+                        : '本季度健康全景：生命体征维持在极高基准水平。周期内各项关键器官负荷测试均符合预期。AI 深度神经网络评估结论：继续保持社交互动与功能性康复训练。'
+                    ) : '由于缺乏连续的设备监测数据，系统无法生成本时段的核心健康评估结论。'}
+                  </p>
+                </div>
+              </motion.div>
+
+              {/* AI 深度建议 (Deep Strategy) */}
+              <div className="bg-slate-900 rounded-[32px] p-8 text-white relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-8 opacity-10">
                    <Zap className="w-24 h-24 stroke-white fill-white" />
                 </div>
@@ -414,18 +380,12 @@ export default function HealthReport() {
                           <span className="text-[11px] font-black uppercase tracking-widest text-white/90">下周期调整建议</span>
                        </div>
                        <p className="text-xs leading-relaxed text-blue-50/70 font-medium">
-                          基于本周晨间血压监测，建议将原本在 08:30 的第二次服药时间提前至 07:45，以更好覆盖晨峰血压活跃期。同时本周室内步数略微下降，建议增加下午 16:00-16:30 的室内康复行走。
+                          基于本周晨间血压监测，建议将原本在 08:30 的第二次服药时间提前至 07:45，以更好覆盖晨峰血压活跃期。同时本周期室内步数表现稳健，建议在季报周期内通过 AI 机器人预约一次更深度的骨特质分析评估。
                        </p>
                     </div>
-                    <div className="flex gap-2">
-                       <div className="flex-1 bg-white/5 border border-white/10 p-3 rounded-xl text-center">
-                          <p className="text-[9px] text-white/40 font-bold mb-1 uppercase">关注指标</p>
-                          <p className="text-xs font-black text-white/90 uppercase tracking-wide">水分摄入量</p>
-                       </div>
-                       <div className="flex-1 bg-white/5 border border-white/10 p-3 rounded-xl text-center">
-                          <p className="text-[9px] text-white/40 font-bold mb-1 uppercase">预期改进</p>
-                          <p className="text-xs font-black text-white/90 uppercase tracking-wide">睡眠质量 +12%</p>
-                       </div>
+                    <div className="flex gap-3">
+                       <button onClick={handleShare} className="flex-1 bg-white/10 hover:bg-white/20 border border-white/10 py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest transition-all">分享报告</button>
+                       <button onClick={handleDownload} className="flex-1 bg-brand-blue hover:bg-brand-blue/90 py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-brand-blue/20">下载PDF</button>
                     </div>
                   </div>
                 </div>

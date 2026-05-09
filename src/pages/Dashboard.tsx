@@ -29,10 +29,16 @@ import { useAppContext } from '../context/AppContext';
 export default function Dashboard() {
   const navigate = useNavigate();
   const { hasRobotBound, robots, activeRobotId, setActiveRobotId } = useAppContext();
-  const [activeTab, setActiveTab] = useState('daily');
   const [showAlert, setShowAlert] = useState(hasRobotBound);
 
   const activeRobot = robots.find(r => r.id === activeRobotId) || robots[0] || null;
+
+  const HEALTH_EVENTS = [
+    { id: 1, time: '10:30', title: '服药确认', detail: '硝苯地平缓释片 1片', status: 'completed' },
+    { id: 2, time: '09:15', title: '运动完成', detail: '室内康复步行 15分钟', status: 'completed' },
+    { id: 3, time: '08:00', title: '服药确认', detail: '阿司匹林肠溶片 1片', status: 'completed' },
+    { id: 4, time: '07:30', title: '生理指标监测', detail: '血压: 150/95 毫米汞柱 (偏高)', status: 'warning' },
+  ];
 
   return (
     <Layout>
@@ -52,7 +58,7 @@ export default function Dashboard() {
                 </div>
                 <div className="flex-1 min-w-0 pr-6">
                   <div className="flex justify-between items-center mb-0.5">
-                    <h3 className="text-base font-black text-rose-600 leading-tight">紧急预警：生命体征异常</h3>
+                    <h3 className="text-base font-black text-rose-600 leading-tight tracking-tight uppercase">紧急预警：生命体征异常</h3>
                     <span className="text-[10px] font-black text-rose-500/60 uppercase tracking-widest tabular-nums">14:20</span>
                   </div>
                   <p className="text-rose-900/70 text-[12px] leading-tight font-bold">
@@ -71,11 +77,11 @@ export default function Dashboard() {
               <div className="flex gap-2.5">
                 <button 
                   onClick={() => navigate('/alert-detail?id=4')}
-                  className="flex-[1.5] bg-[#ff2d55] text-white py-3 rounded-2xl font-black text-xs active:scale-95 transition-all shadow-md shadow-rose-500/10"
+                  className="flex-[1.5] bg-[#ff2d55] text-white py-3 rounded-2xl font-black text-xs active:scale-95 transition-all shadow-md shadow-rose-500/10 uppercase tracking-widest"
                 >
                   立即处理
                 </button>
-                <button className="flex-1 bg-white border border-rose-100 text-[#ff2d55] py-3 rounded-2xl font-black text-xs active:scale-95 transition-all">
+                <button className="flex-1 bg-white border border-rose-100 text-[#ff2d55] py-3 rounded-2xl font-black text-xs active:scale-95 transition-all uppercase tracking-widest">
                   一键呼叫120
                 </button>
               </div>
@@ -84,242 +90,164 @@ export default function Dashboard() {
         )}
       </AnimatePresence>
 
-      <div className="px-6 pt-12 pb-4 bg-white border-b border-border-base">
+      <div className="px-6 pt-12 pb-4 bg-white border-b border-slate-100">
         <div className="flex justify-between items-end mb-4">
           <div>
-            <h2 className="text-xl font-black text-text-main mt-1">早上好，大壮</h2>
+            <h2 className="text-2xl font-black text-slate-900 mt-1 tracking-tight italic uppercase">早安，主人</h2>
+            <p className="text-[9px] text-slate-400 font-bold uppercase tracking-[0.3em] mt-1">智能生活看板</p>
           </div>
           <div className="flex gap-2">
             <Link
               to="/messages"
-              className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center border border-border-base relative active:scale-95 transition-transform"
+              className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-100 relative active:scale-95 transition-transform"
             >
-              <Bell className="w-5 h-5 text-text-muted" />
+              <Bell className="w-5 h-5 text-slate-400" />
               <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-rose-500 rounded-full border-2 border-white"></span>
             </Link>
             <Link
               to="/profile"
-              className="w-10 h-10 rounded-xl border border-border-base overflow-hidden active:scale-95 transition-transform"
+              className="w-10 h-10 rounded-xl border border-slate-100 overflow-hidden active:scale-95 transition-transform"
             >
               <Avatar src={MOCK_USER.avatar} className="w-full h-full" />
             </Link>
           </div>
         </div>
-
-        {/* Robot Quick Switcher */}
-        {hasRobotBound && robots.length > 1 && (
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide py-1">
-            {robots.map((robot) => (
-              <button
-                key={robot.id}
-                onClick={() => setActiveRobotId(robot.id)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all shrink-0 active:scale-95 ${
-                  activeRobotId === robot.id 
-                    ? 'bg-brand-blue border-brand-blue text-white shadow-md' 
-                    : 'bg-white border-slate-100 text-slate-500'
-                }`}
-              >
-                <div className={`w-1.5 h-1.5 rounded-full ${robot.status === 'online' ? 'bg-emerald-400' : 'bg-slate-300'}`} />
-                <span className="text-[10px] font-black uppercase tracking-widest">{robot.name.split(' - ')[1]}</span>
-              </button>
-            ))}
-            <Link 
-              to="/family-sharing" 
-              className="w-8 h-8 rounded-full bg-slate-50 border border-dashed border-slate-200 flex items-center justify-center text-slate-400 shrink-0"
-            >
-              <Plus className="w-4 h-4" />
-            </Link>
-          </div>
-        )}
       </div>
 
-      <div className="px-6 space-y-6 pt-6 pb-12 bg-white">
-        {/* Robot Status Card */}
-        <div className="bg-slate-50/50 rounded-[32px] p-5 border border-border-base relative overflow-hidden">
+      <div className="flex-1 overflow-y-auto scrollbar-hide px-6 space-y-6 pt-6 pb-24 bg-[#F8FAFC]">
+        {/* Physical Status Briefing */}
+        <div className="space-y-4">
+          <div className="bg-white border border-slate-100 p-8 rounded-[40px] shadow-sm">
+            <div className="flex items-center justify-between mb-8">
+               <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">生理指标简报</h4>
+               <div className="bg-blue-50 px-2 py-1 rounded-lg">
+                  <span className="text-[8px] font-black text-blue-600 uppercase tracking-widest">实时已同步</span>
+               </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-x-12 gap-y-10">
+               <div className="flex flex-col">
+                  <p className="text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">心率指标</p>
+                  <p className="text-2xl font-black text-slate-900 mb-1 tabular-nums">{hasRobotBound ? '72' : '-'}</p>
+                  <div className={`flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest ${hasRobotBound ? 'text-emerald-500' : 'text-slate-300'}`}>
+                     <div className={`w-1.5 h-1.5 rounded-full ${hasRobotBound ? 'bg-emerald-500 animate-pulse' : 'bg-slate-200'}`} />
+                     {hasRobotBound ? '状态优秀' : '暂无数据'}
+                  </div>
+               </div>
+               <div className="flex flex-col">
+                  <p className="text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">平均血压</p>
+                  <p className={`text-2xl font-black mb-1 tabular-nums ${hasRobotBound ? 'text-orange-500' : 'text-slate-900'}`}>{hasRobotBound ? '150/95' : '-'}</p>
+                  <p className={`text-[9px] font-black uppercase tracking-widest ${hasRobotBound ? 'text-orange-500' : 'text-slate-300'}`}>
+                    {hasRobotBound ? '血压偏高' : '暂无数据'}
+                  </p>
+               </div>
+               <div className="flex flex-col">
+                  <p className="text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">呼吸指标</p>
+                  <p className="text-2xl font-black text-slate-900 mb-1 tabular-nums">{hasRobotBound ? '18' : '-'}</p>
+                  <p className={`text-[9px] font-black uppercase tracking-widest ${hasRobotBound ? 'text-emerald-500' : 'text-slate-300'}`}>
+                    {hasRobotBound ? '频率平稳' : '暂无数据'}
+                  </p>
+               </div>
+               <div className="flex flex-col">
+                  <p className="text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">睡眠时长</p>
+                  <p className="text-2xl font-black text-slate-900 mb-1 tabular-nums">{hasRobotBound ? '7.5h' : '-'}</p>
+                  <p className={`text-[9px] font-black uppercase tracking-widest ${hasRobotBound ? 'text-blue-500' : 'text-slate-300'}`}>
+                    {hasRobotBound ? '睡眠充足' : '暂无记录'}
+                  </p>
+               </div>
+            </div>
+          </div>
+
+          {/* Health Events List */}
+          <div className="space-y-4">
+            <div className="flex justify-between items-center px-2">
+              <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">24H 健康记录轨迹</h3>
+              <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">时间倒序排列</span>
+            </div>
+            
+            <div className="bg-white rounded-[40px] border border-slate-100 divide-y divide-slate-50 overflow-hidden shadow-sm">
+              {HEALTH_EVENTS.map((event) => (
+                <div key={event.id} className="p-6 flex items-start gap-4 active:bg-slate-50 transition-colors">
+                  <div className="text-[11px] font-black text-slate-300 w-14 pt-1 uppercase tracking-widest shrink-0 tabular-nums">{event.time}</div>
+                  <div className="flex-1 min-w-0">
+                    <h5 className="text-[15px] font-black text-slate-800 leading-tight uppercase tracking-tight">{event.title}</h5>
+                    <p className="text-xs text-slate-400 font-bold mt-2 tracking-tight">{event.detail}</p>
+                  </div>
+                  <div className={`w-3.5 h-3.5 rounded-full mt-2 shrink-0 ${event.status === 'completed' ? 'bg-emerald-500 shadow-lg shadow-emerald-500/20' : 'bg-blue-500 shadow-lg shadow-blue-500/20'}`} />
+                </div>
+              ))}
+              {!hasRobotBound && (
+                <div className="p-16 text-center">
+                  <p className="text-[10px] text-slate-300 font-black uppercase tracking-[0.3em] italic">等待智源同步中...</p>
+                </div>
+              )}
+            </div>
+            
+            {hasRobotBound && (
+               <button onClick={() => navigate('/health')} className="w-full py-5 text-[11px] font-black text-blue-600 uppercase tracking-[0.3em] bg-white rounded-[32px] active:scale-[0.98] transition-all border border-slate-100 shadow-sm">
+                  查看完整健康看板 ➜
+               </button>
+            )}
+          </div>
+        </div>
+
+        {/* Robot Status Card - Moved down or made smaller */}
+        <div className="bg-slate-900 rounded-[40px] p-8 relative overflow-hidden shadow-2xl shadow-slate-900/10">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/20 blur-3xl -mr-16 -mt-16 pointer-events-none" />
+          
           {!hasRobotBound && (
-            <div className="absolute inset-0 z-10 bg-white/40 backdrop-blur-[2px] flex items-center justify-center">
+            <div className="absolute inset-0 z-10 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center p-6">
               <Link 
                 to="/bind" 
-                className="bg-brand-blue text-white px-6 py-3 rounded-2xl font-black text-xs shadow-lg shadow-brand-blue/20 flex items-center gap-2 active:scale-95 transition-all"
+                className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-[11px] shadow-xl shadow-blue-600/30 flex items-center justify-center gap-3 active:scale-95 transition-all uppercase tracking-widest"
               >
                 <Plus className="w-4 h-4" />
-                <span>立即绑定智护设备</span>
+                <span>立即绑定智护终端</span>
               </Link>
             </div>
           )}
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-brand-blue border border-border-base shadow-sm">
-                <RobotIcon className="w-7 h-7" />
+          
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-blue-400 border border-white/5 backdrop-blur-md">
+                <span className="text-3xl">🤖</span>
               </div>
               <div>
-                <h3 className="font-black text-text-main text-base tracking-tight">
+                <h3 className="font-black text-white text-lg tracking-tight leading-none uppercase">
                   {activeRobot ? activeRobot.name : '未绑定设备'}
                 </h3>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <div className={`w-1.5 h-1.5 rounded-full ${activeRobot && activeRobot.status === 'online' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`} />
-                  <span className={`text-[10px] font-black uppercase tracking-widest ${activeRobot && activeRobot.status === 'online' ? 'text-emerald-600' : 'text-slate-400'}`}>
-                    {activeRobot ? `${activeRobot.status === 'online' ? '在线' : '离线'}` : '离线'}
+                <div className="flex items-center gap-2 mt-2">
+                  <div className={`w-1.5 h-1.5 rounded-full ${activeRobot && activeRobot.status === 'online' ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}`} />
+                  <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${activeRobot && activeRobot.status === 'online' ? 'text-emerald-400' : 'text-slate-500'}`}>
+                    {activeRobot ? `${activeRobot.status === 'online' ? '已连接' : '连接中断'}` : '无信号'}
                   </span>
                 </div>
               </div>
             </div>
-            <div className="bg-white px-2.5 py-1 rounded-xl flex items-center gap-1.5 border border-border-base shadow-sm">
-              <Battery className={`w-3.5 h-3.5 ${activeRobot ? 'text-emerald-500' : 'text-slate-300'}`} />
-              <span className="text-[10px] font-black text-text-main tabular-nums">
+            <div className="bg-white/10 px-3 py-1.5 rounded-xl flex items-center gap-2 border border-white/5 backdrop-blur-md">
+              <span className="text-xs">🔋</span>
+              <span className="text-xs font-black text-white tabular-nums">
                 {activeRobot ? `${activeRobot.battery}%` : '--'}
               </span>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3 opacity-90">
-            <Link 
-              to={hasRobotBound ? "/control" : "#"} 
-              className={`bg-white border border-border-base text-text-main py-3 rounded-2xl flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-widest active:scale-95 transition-transform shadow-sm ${!hasRobotBound && 'opacity-50 cursor-not-allowed'}`}
-            >
-              <Video className={`w-4 h-4 ${hasRobotBound ? 'text-brand-blue' : 'text-slate-300'}`} />
-              <span>实时视频</span>
-            </Link>
-            <button 
-              disabled={!hasRobotBound}
-              className={`bg-white border border-border-base text-text-main py-3 rounded-2xl flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-widest active:scale-95 transition-transform shadow-sm ${!hasRobotBound && 'opacity-50 cursor-not-allowed'}`}
-            >
-              <MapPin className={`w-4 h-4 ${hasRobotBound ? 'text-orange-500' : 'text-slate-300'}`} />
-              <span>自动归位</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Health Summary Section */}
-        <div className="space-y-4">
-          <div className="flex justify-between items-center px-1">
-            <h3 className="text-[11px] font-black text-text-main uppercase tracking-widest opacity-60">今日健康摘要</h3>
-            <span className="text-[9px] font-bold text-text-muted">
-              {hasRobotBound ? '更新于 09:30' : '暂无同步数据'}
-            </span>
-          </div>
           
           <div className="grid grid-cols-2 gap-3">
             <Link 
-              to={hasRobotBound ? "/health?metric=heart" : "#"} 
-              className="bg-white border border-border-base rounded-[32px] p-5 active:scale-[0.98] transition-all shadow-sm block"
+              to={hasRobotBound ? "/control" : "#"} 
+              className={`bg-white text-slate-900 py-4 rounded-2xl flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest active:scale-95 transition-transform shadow-lg ${!hasRobotBound && 'opacity-30 cursor-not-allowed'}`}
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-8 h-8 rounded-xl bg-rose-50 flex items-center justify-center text-rose-500">
-                   <Heart className="w-4 h-4" />
-                </div>
-                {hasRobotBound && (
-                  <div className="bg-emerald-50 px-2 py-0.5 rounded-lg text-emerald-600 text-[8px] font-black uppercase">
-                    正常
-                  </div>
-                )}
-              </div>
-              <p className="text-[10px] font-bold text-text-muted uppercase tracking-tight mb-1">平均心率</p>
-              <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-black text-text-main tabular-nums">
-                  {hasRobotBound ? '72' : '-'}
-                </span>
-                <span className="text-[9px] font-bold text-text-muted">次/分</span>
-              </div>
+              <span className="text-lg leading-none">📹</span>
+              <span>远程控制</span>
             </Link>
-
-            <Link 
-              to={hasRobotBound ? "/health?metric=sleep" : "#"} 
-              className="bg-white border border-border-base rounded-[32px] p-5 active:scale-[0.98] transition-all shadow-sm block"
+            <button 
+              disabled={!hasRobotBound}
+              className={`bg-white/10 border border-white/10 text-white py-4 rounded-2xl flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest active:scale-95 transition-transform backdrop-blur-md ${!hasRobotBound && 'opacity-30 cursor-not-allowed'}`}
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-500">
-                   <Moon className="w-4 h-4" />
-                </div>
-                {hasRobotBound && (
-                  <div className="bg-indigo-50 px-2 py-0.5 rounded-lg text-indigo-600 text-[8px] font-black uppercase">
-                    优质
-                  </div>
-                )}
-              </div>
-              <p className="text-[10px] font-bold text-text-muted uppercase tracking-tight mb-1">睡眠时长</p>
-              <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-black text-text-main tabular-nums">
-                  {hasRobotBound ? '7.4' : '-'}
-                </span>
-                <span className="text-[9px] font-bold text-text-muted">小时</span>
-              </div>
-            </Link>
+              <span className="text-lg leading-none">🏠</span>
+              <span>自动归位</span>
+            </button>
           </div>
-        </div>
-
-        {/* Tabs Section */}
-        <div className="space-y-4">
-          <div className="flex bg-slate-50 p-1 rounded-xl">
-             <button 
-               onClick={() => setActiveTab('daily')}
-               className={`flex-1 py-2 rounded-lg flex items-center justify-center gap-1.5 transition-all ${activeTab === 'daily' ? 'bg-white shadow-sm text-brand-blue' : 'text-text-muted'}`}
-             >
-                <Zap className={`w-3 h-3 ${activeTab === 'daily' ? 'fill-brand-blue' : ''}`} />
-                <span className="text-[10px] font-black uppercase tracking-widest leading-none">今日关怀</span>
-             </button>
-             <button 
-               onClick={() => navigate('/health-report?type=weekly')}
-               className={`flex-1 py-1 rounded-lg flex items-center justify-center gap-1.5 transition-all ${activeTab === 'weekly' ? 'bg-white shadow-sm text-brand-blue' : 'text-text-muted'}`}
-             >
-                <Calendar className="w-3 h-3" />
-                <span className="text-[10px] font-black uppercase tracking-widest leading-none">每周回顾</span>
-             </button>
-             <button 
-               onClick={() => navigate('/health-report?type=monthly')}
-               className={`flex-1 py-1 rounded-lg flex items-center justify-center gap-1.5 transition-all ${activeTab === 'monthly' ? 'bg-white shadow-sm text-brand-blue' : 'text-text-muted'}`}
-             >
-                <BarChart3 className="w-3 h-3" />
-                <span className="text-[10px] font-black uppercase tracking-widest leading-none">月度健康</span>
-             </button>
-          </div>
-
-          <AnimatePresence mode="wait">
-            {activeTab === 'daily' ? (
-              <motion.div
-                key="daily-content"
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.98 }}
-                className="geo-card border border-border-base p-6 rounded-3xl"
-              >
-                <div className="flex items-center gap-2 mb-6">
-                   <Activity className="w-5 h-5 text-brand-blue" />
-                   <h4 className="text-sm font-black text-brand-blue uppercase tracking-tight">身体状态简报</h4>
-                </div>
-                
-                <div className="grid grid-cols-4 divide-x divide-slate-100">
-                   <div className="flex flex-col items-center px-1">
-                      <p className="text-[10px] font-bold text-text-muted mb-2">今日步数</p>
-                      <p className="text-base font-black text-text-main mb-1">{hasRobotBound ? '2,340' : '-'}</p>
-                      <div className={`flex items-center gap-0.5 text-[8px] font-black uppercase ${hasRobotBound ? 'text-emerald-500' : 'text-slate-300'}`}>
-                         <span className="text-[9px] leading-none">{hasRobotBound ? '√' : '-'}</span> {hasRobotBound ? '达标' : '离线'}
-                      </div>
-                   </div>
-                   <div className="flex flex-col items-center px-1">
-                      <p className="text-[10px] font-bold text-text-muted mb-2">血压</p>
-                      <p className="text-base font-black text-text-main mb-1">{hasRobotBound ? '118/76' : '-'}</p>
-                      <p className={`text-[8px] font-black uppercase tracking-tighter ${hasRobotBound ? 'text-emerald-500' : 'text-slate-300'}`}>
-                        {hasRobotBound ? '血压' : '未监测'}
-                      </p>
-                   </div>
-                   <div className="flex flex-col items-center px-1">
-                      <p className="text-[10px] font-bold text-text-muted mb-2">血糖</p>
-                      <p className="text-base font-black text-text-main mb-1">{hasRobotBound ? '5.4' : '-'}</p>
-                      <p className={`text-[8px] font-black uppercase tracking-tighter ${hasRobotBound ? 'text-emerald-500' : 'text-slate-300'}`}>
-                        {hasRobotBound ? '血糖' : '未监测'}
-                      </p>
-                   </div>
-                   <div className="flex flex-col items-center px-1">
-                      <p className="text-[10px] font-bold text-text-muted mb-2">服药</p>
-                      <p className="text-base font-black text-text-main mb-1">{hasRobotBound ? '100%' : '-'}</p>
-                      <p className={`text-[8px] font-black uppercase tracking-tighter ${hasRobotBound ? 'text-brand-blue' : 'text-slate-300'}`}>
-                        {hasRobotBound ? '已确认' : '未记录'}
-                      </p>
-                   </div>
-                </div>
-              </motion.div>
-            ) : null}
-          </AnimatePresence>
         </div>
       </div>
     </Layout>

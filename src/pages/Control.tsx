@@ -115,74 +115,81 @@ export default function Control() {
           {/* HUD Overlay - Closer to edges */}
           <div className="absolute inset-x-4 inset-y-6 flex flex-col justify-between pointer-events-none">
             <div className="flex justify-between items-start pointer-events-auto">
-              <button onClick={() => navigate(-1)} className="w-8 h-8 rounded-lg bg-black/40 backdrop-blur-md flex items-center justify-center text-white border border-white/10 active:scale-90 transition-transform">
-                <ChevronLeft className="w-5 h-5" />
+              <button 
+                onClick={() => navigate(-1)} 
+                className="w-10 h-10 rounded-xl bg-black/40 backdrop-blur-md flex items-center justify-center text-white border border-white/10 active:scale-90 transition-transform"
+              >
+                <ChevronLeft className="w-6 h-6" />
               </button>
-              <div className="flex flex-col items-end gap-1">
-                <div className="flex gap-1">
-                  <div className="bg-rose-500 text-white px-1.5 py-0.5 rounded-md text-[7px] font-black uppercase flex items-center gap-1 border border-white/10 shadow-lg" title="实时直播中">
+              <div className="flex flex-col items-end gap-2">
+                <div className="flex gap-2">
+                  <div className="bg-rose-500 text-white px-2 py-1 rounded-lg text-[8px] font-black uppercase flex items-center gap-1.5 border border-white/10 shadow-lg">
                     <div className="w-1 h-1 rounded-full bg-white animate-pulse" />
-                    实时
+                    LIVE
                   </div>
-                  <div className="bg-black/40 backdrop-blur-md text-white px-1.5 py-0.5 rounded-md text-[7px] font-mono border border-white/10">
+                  <div className="bg-black/40 backdrop-blur-md text-white px-2 py-1 rounded-lg text-[8px] font-black border border-white/10 tabular-nums">
                     {new Date().toLocaleTimeString('zh-CN', { hour12: false })}
                   </div>
                 </div>
                 <button 
                   onClick={handleSaveConfig}
-                  className="bg-black/40 backdrop-blur-md px-2 py-0.5 rounded-md flex items-center gap-1 text-white text-[8px] font-bold border border-white/10 active:opacity-70 pointer-events-auto"
+                  className="bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-lg flex items-center gap-1.5 text-white text-[9px] font-black border border-white/10 active:opacity-70 pointer-events-auto uppercase tracking-widest"
                 >
-                  <MapPin className="w-2.5 h-2.5" />
-                  位置保存
+                  <MapPin className="w-3 h-3 text-brand-blue" />
+                  保存视角
                 </button>
               </div>
             </div>
 
             <AnimatePresence>
               {isLocationModalOpen && (
-                <div className="absolute inset-0 z-[60] bg-black/60 backdrop-blur-md flex items-center justify-center p-6 pointer-events-auto">
+                <div className="absolute inset-0 z-[60] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-6 pointer-events-auto">
                   <motion.div 
                     initial={{ opacity: 0, scale: 0.9, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                    className="w-full max-w-[280px] bg-white rounded-[24px] overflow-hidden shadow-2xl flex flex-col"
+                    className="w-full max-w-[300px] bg-white rounded-[40px] overflow-hidden shadow-2xl flex flex-col border border-white"
                   >
-                    <div className="bg-slate-50 px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                    <div className="bg-slate-50/50 px-6 py-5 border-b border-slate-100 flex items-center justify-between">
                       <div>
-                        <h3 className="text-sm font-black text-slate-900 leading-none">监控位置管理</h3>
+                        <h3 className="text-sm font-black text-slate-900 leading-none">视控位置管理</h3>
+                        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1.5">MANAGE LOCATIONS</p>
                       </div>
-                      <button onClick={() => setIsLocationModalOpen(false)} className="w-6 h-6 rounded-full bg-slate-200/50 flex items-center justify-center text-slate-500 active:scale-90 transition-transform">
-                        <X className="w-3.5 h-3.5" />
+                      <button 
+                        onClick={() => setIsLocationModalOpen(false)} 
+                        className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-slate-500 active:scale-90 transition-transform shadow-sm"
+                      >
+                        <X className="w-4 h-4" />
                       </button>
                     </div>
 
-                    <div className="p-4 space-y-2 max-h-[300px] overflow-y-auto">
+                    <div className="p-6 space-y-3 max-h-[320px] overflow-y-auto scrollbar-hide">
                       {rooms.filter(r => r.id !== 'follow').map((room) => (
-                        <div key={room.id} className="flex items-center gap-3 p-2 rounded-xl bg-slate-50 border border-slate-100 group">
-                          <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-slate-200">
+                        <div key={room.id} className="flex items-center gap-4 p-3 rounded-[24px] bg-slate-50 border border-slate-100 group transition-all hover:bg-white hover:shadow-sm">
+                          <div className="w-12 h-12 rounded-2xl overflow-hidden shrink-0 border border-slate-100 bg-white">
                              <img src={room.img} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                           </div>
                           <div className="flex-1 min-w-0">
                             {editingRoomId === room.id ? (
-                              <input 
-                                autoFocus
-                                value={editName}
-                                onChange={(e) => setEditName(e.target.value)}
-                                onBlur={() => handleUpdateRoomName(room.id)}
-                                onKeyDown={(e) => e.key === 'Enter' && handleUpdateRoomName(room.id)}
-                                className="w-full bg-white border border-brand-blue rounded px-2 py-0.5 text-xs font-bold outline-none"
-                              />
+                               <input 
+                                 autoFocus
+                                 value={editName}
+                                 onChange={(e) => setEditName(e.target.value)}
+                                 onBlur={() => handleUpdateRoomName(room.id)}
+                                 onKeyDown={(e) => e.key === 'Enter' && handleUpdateRoomName(room.id)}
+                                 className="w-full bg-white border border-brand-blue rounded-lg px-2 py-1 text-xs font-black outline-none shadow-inner"
+                               />
                             ) : (
                               <div className="flex items-center justify-between">
-                                <span className="text-xs font-black text-slate-800 truncate">{room.name}</span>
+                                <span className="text-[13px] font-black text-slate-800 truncate">{room.name}</span>
                                 <button 
                                   onClick={() => {
                                     setEditingRoomId(room.id);
                                     setEditName(room.name);
                                   }}
-                                  className="p-1.5 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-brand-blue transition-all"
+                                  className="p-1 px-2 text-[10px] font-black text-blue-500 uppercase tracking-widest hover:bg-blue-50 rounded-lg transition-all"
                                 >
-                                  <Settings className="w-3 h-3" />
+                                  编辑
                                 </button>
                               </div>
                             )}
@@ -191,12 +198,12 @@ export default function Control() {
                       ))}
                     </div>
 
-                    <div className="p-4 bg-slate-50/80 border-t border-slate-100">
+                    <div className="p-6 bg-slate-50/50 border-t border-slate-100">
                        <button 
                          onClick={handleAddNewLocation}
-                         className="w-full py-3 rounded-xl bg-brand-blue/10 border border-brand-blue/20 text-brand-blue font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 transition-all"
+                         className="w-full py-4 rounded-2xl bg-brand-blue text-white font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 transition-all shadow-lg shadow-brand-blue/20"
                        >
-                          <Plus className="w-3.5 h-3.5" />
+                          <Plus className="w-4 h-4" />
                           新增自定义视角
                        </button>
                     </div>
@@ -206,37 +213,37 @@ export default function Control() {
             </AnimatePresence>
 
             <div className="flex justify-center">
-               <div className="bg-black/20 backdrop-blur-sm px-3 py-0.5 rounded-full text-white/40 text-[7px] font-black uppercase tracking-widest leading-none">
-                  加密传输 • 1080P • 60帧
+               <div className="bg-black/30 backdrop-blur-md px-4 py-1.5 rounded-full text-white/50 text-[8px] font-black uppercase tracking-[0.2em] leading-none border border-white/5">
+                  SECURE TUNNEL • 4K ULTRA • 60FPS
                </div>
             </div>
 
             <div className="flex justify-between items-end pointer-events-auto">
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-3">
                 <button 
                   onClick={() => setIsMicOn(!isMicOn)}
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center backdrop-blur-md border border-white/20 transition-all ${isMicOn ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/30' : 'bg-black/40 text-white'}`}
+                  className={`w-11 h-11 rounded-2xl flex items-center justify-center backdrop-blur-md border border-white/20 transition-all active:scale-90 ${isMicOn ? 'bg-brand-blue text-white shadow-xl shadow-brand-blue/30' : 'bg-black/40 text-white'}`}
                 >
-                  <Mic className="w-4 h-4" />
+                  <span className="text-xl">🎙️</span>
                 </button>
                 <button 
                   onClick={() => setIsSpeakerOn(!isSpeakerOn)}
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center backdrop-blur-md border border-white/20 transition-all ${isSpeakerOn ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/30' : 'bg-black/40 text-white'}`}
+                  className={`w-11 h-11 rounded-2xl flex items-center justify-center backdrop-blur-md border border-white/20 transition-all active:scale-90 ${isSpeakerOn ? 'bg-brand-blue text-white shadow-xl shadow-brand-blue/30' : 'bg-black/40 text-white'}`}
                 >
-                  <Volume2 className="w-4 h-4" />
+                  <span className="text-xl">🔊</span>
                 </button>
               </div>
               
-              <div className="flex flex-col items-center gap-1.5">
-                <div className="bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10 text-white leading-none">
-                   <span className="text-[9px] font-black uppercase tracking-tight">{currentRoom.name}</span>
+              <div className="flex flex-col items-center gap-2">
+                <div className="bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 text-white leading-none">
+                   <span className="text-[10px] font-black uppercase tracking-widest">{currentRoom.name}</span>
                 </div>
-                <div className="flex gap-1.5">
-                   <button className="w-9 h-9 rounded-xl bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center text-white active:scale-90">
-                      <Camera className="w-4 h-4 opacity-80" />
+                <div className="flex gap-2">
+                   <button className="w-11 h-11 rounded-2xl bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center text-white active:scale-90">
+                      <span className="text-xl">📸</span>
                    </button>
-                   <button className="w-9 h-9 rounded-xl bg-slate-500/50 backdrop-blur-md border border-white/20 flex items-center justify-center text-white active:scale-90">
-                      <Video className="w-4 h-4 opacity-80" />
+                   <button className="w-11 h-11 rounded-2xl bg-slate-500/50 backdrop-blur-md border border-white/20 flex items-center justify-center text-white active:scale-90">
+                      <span className="text-xl">🎥</span>
                    </button>
                 </div>
               </div>
@@ -245,69 +252,69 @@ export default function Control() {
         </div>
 
         {/* Control Panel */}
-        <div className="flex-1 bg-white rounded-t-[32px] relative z-20 px-6 pt-8 pb-20 flex flex-col overflow-hidden shadow-[0_-15px_30px_rgba(0,0,0,0.08)]">
-          <div className="flex items-center justify-between mb-6 shrink-0">
-             <h2 className="text-lg font-black text-text-main tracking-tight">智控中心</h2>
-             <div className="bg-blue-50/50 px-2.5 py-1 rounded-full flex items-center gap-1.5 border border-blue-100">
-                <div className="w-1 h-1 rounded-full bg-brand-blue animate-pulse" />
-                <span className="text-[8px] font-black text-brand-blue uppercase tracking-widest leading-none">终端接管中</span>
+        <div className="flex-1 bg-[#F8FAFC] rounded-t-[48px] relative z-20 px-8 pt-10 pb-24 flex flex-col overflow-hidden shadow-[0_-20px_40px_rgba(0,0,0,0.08)] border-t border-white">
+          <div className="flex items-center justify-between mb-8 shrink-0">
+             <h2 className="text-xl font-black text-slate-800 tracking-tight">智控中心</h2>
+             <div className="bg-blue-50 px-3 py-1.5 rounded-full flex items-center gap-2 border border-blue-100 shadow-sm">
+                <div className="w-1.5 h-1.5 rounded-full bg-brand-blue animate-pulse" />
+                <span className="text-[9px] font-black text-brand-blue uppercase tracking-widest leading-none">终端接管中</span>
              </div>
           </div>
 
           <div className="flex-1 flex flex-col justify-center">
-            <div className="flex items-center justify-between gap-6 pb-12">
+            <div className="flex items-center justify-between gap-8 pb-10">
               {/* Joystick Side - More prominent arrows */}
-              <div className="flex-1 aspect-square max-w-[160px] relative rounded-full border border-slate-100 bg-slate-50/50 flex items-center justify-center">
-                 <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 p-3 pointer-events-none">
-                    <div /><ArrowUp className="w-7 h-7 mx-auto text-slate-800 opacity-90 stroke-[3]" /><div />
-                    <ArrowLeft className="w-7 h-7 my-auto text-slate-800 opacity-90 stroke-[3]" /><div /><ArrowRight className="w-7 h-7 my-auto ml-auto text-slate-800 opacity-90 stroke-[3]" />
-                    <div /><ArrowDown className="w-7 h-7 mx-auto text-slate-800 opacity-90 stroke-[3]" /><div />
+              <div className="flex-1 aspect-square max-w-[180px] relative rounded-full border-4 border-white bg-slate-100/50 flex items-center justify-center shadow-[inset_0_2px_10px_rgba(0,0,0,0.05)]">
+                 <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 p-4 pointer-events-none opacity-20">
+                    <div /><ArrowUp className="w-6 h-6 mx-auto text-slate-900 stroke-[4]" /><div />
+                    <ArrowLeft className="w-6 h-6 my-auto text-slate-900 stroke-[4]" /><div /><ArrowRight className="w-6 h-6 my-auto ml-auto text-slate-900 stroke-[4]" />
+                    <div /><ArrowDown className="w-6 h-6 mx-auto text-slate-900 stroke-[4]" /><div />
                  </div>
                  
                  <motion.div 
                    drag
-                   dragConstraints={{ left: -25, right: 25, top: -25, bottom: 25 }}
+                   dragConstraints={{ left: -35, right: 35, top: -35, bottom: 35 }}
                    dragElastic={0.15}
                    whileTap={{ scale: 0.9 }}
-                   className="w-12 h-12 rounded-full bg-white shadow-2xl flex items-center justify-center z-10 border border-slate-50 relative pointer-events-auto"
+                   className="w-16 h-16 rounded-full bg-white shadow-2xl flex items-center justify-center z-10 border border-slate-50 relative pointer-events-auto"
                  >
-                    <div className="w-6 h-6 rounded-full bg-brand-blue shadow-inner" />
+                    <div className="w-8 h-8 rounded-full bg-brand-blue shadow-inner" />
                  </motion.div>
-                 <div className="absolute w-20 h-20 rounded-full border-2 border-brand-blue/10 animate-pulse opacity-20" />
+                 <div className="absolute w-24 h-24 rounded-full border-2 border-brand-blue/10 animate-ping opacity-10" />
               </div>
 
               {/* Actions Side */}
-              <div className="flex-1 grid grid-cols-2 gap-2 content-center">
+              <div className="flex-1 grid grid-cols-2 gap-3 content-center">
                  <div className="col-span-2">
-                   <button className="w-full h-11 bg-brand-blue text-white rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-brand-blue/20 active:scale-95 transition-all">
-                      <Home className="w-4 h-4" />
-                      <span className="text-[10px] font-black uppercase tracking-widest">自动回充</span>
+                   <button className="w-full py-4 bg-white border border-slate-100 text-slate-800 rounded-[20px] flex items-center justify-center gap-3 shadow-sm active:scale-95 transition-all">
+                      <span className="text-xl">⚡</span>
+                      <span className="text-[11px] font-black uppercase tracking-widest">自动回充</span>
                    </button>
                  </div>
                  {rooms.filter(r => r.id !== 'follow').map((room) => (
                    <button 
                     key={room.id}
                     onClick={() => setActiveRoom(room.id)}
-                    className={`h-11 rounded-2xl flex items-center justify-center text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all border ${
+                    className={`py-4 rounded-[20px] flex items-center justify-center text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all border shadow-sm ${
                       activeRoom === room.id 
-                        ? 'bg-blue-50 border-brand-blue text-brand-blue' 
-                        : 'bg-white border-border-base text-text-main shadow-sm'
+                        ? 'bg-blue-600 border-blue-600 text-white shadow-blue-600/20' 
+                        : 'bg-white border-slate-100 text-slate-800'
                     }`}
                    >
                      {room.name}
                    </button>
                  ))}
                  
-                 <div className="col-span-2 mt-1">
+                 <div className="col-span-2 mt-2">
                    <button 
                     onClick={() => setActiveRoom('follow')}
-                    className={`w-full h-11 border rounded-xl flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all shadow-sm ${
+                    className={`w-full py-4 border rounded-[22px] flex items-center justify-center gap-3 text-[11px] font-black uppercase tracking-widest active:scale-95 transition-all shadow-lg ${
                       activeRoom === 'follow'
-                        ? 'bg-emerald-50 border-emerald-500 text-emerald-600'
-                        : 'bg-white border-border-base text-text-main'
+                        ? 'bg-emerald-500 border-emerald-500 text-white shadow-emerald-500/20'
+                        : 'bg-white border-slate-100 text-slate-800 shadow-sm'
                     }`}
                    >
-                      <Footprints className={`w-4 h-4 ${activeRoom === 'follow' ? 'text-emerald-500' : 'text-brand-blue'}`} />
+                      <span className="text-xl">🏃‍♂️</span>
                       监护跟随
                    </button>
                  </div>
