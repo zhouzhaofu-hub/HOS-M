@@ -55,7 +55,7 @@ export default function Profile() {
                  <h2 className="text-3xl font-black tracking-tight flex items-center gap-2">
                    {userName}
                  </h2>
-                 <p className="text-white/60 text-xs font-bold mt-1 tracking-widest uppercase">CARE ID: {user?.uid.slice(-8).toUpperCase() || '20260422'}</p>
+                 <p className="text-white/60 text-xs font-bold mt-1 tracking-widest uppercase">身份标识: {user?.uid.slice(-8).toUpperCase() || '20260422'}</p>
                  
                  <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/20 backdrop-blur-md rounded-full border border-white/10 shadow-sm">
                    <span className="text-[10px]">👑</span>
@@ -66,7 +66,7 @@ export default function Profile() {
 
              {/* Stats Card */}
              <div className="relative px-6 mt-8">
-               <div className="bg-white rounded-[40px] p-8 shadow-xl shadow-blue-900/5 flex items-center justify-between border border-white/50">
+               <div className="bg-white rounded-[32px] p-6 shadow-lg shadow-blue-900/5 flex items-center justify-between border border-white/50">
                  <div className="flex-1 text-center border-r border-slate-50">
                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">守护天数</p>
                    <p className="text-2xl font-black text-slate-800">452</p>
@@ -136,7 +136,7 @@ export default function Profile() {
           </div>
 
           <div className="py-12 flex flex-col items-center">
-            <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">Smart Guardian OS v1.2.0</p>
+            <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">智护守护系统 v1.2.0</p>
             <div className="mt-2 w-1 h-1 rounded-full bg-slate-200" />
           </div>
         </div>
@@ -156,7 +156,7 @@ export default function Profile() {
               <div className="bg-slate-50/50 px-8 py-6 flex items-center justify-between">
                 <div>
                   <h3 className="text-base font-black text-slate-900 leading-none">维护姓名</h3>
-                  <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1.5">EDIT PROFILE NAME</p>
+                  <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">编辑个人姓名</p>
                 </div>
                 <button 
                   onClick={() => setIsEditing(false)} 
@@ -221,15 +221,15 @@ function MenuCard({
   const content = (
     <button 
       onClick={onClick}
-      className="w-full bg-white rounded-[32px] p-6 pr-8 flex items-center justify-between group active:scale-[0.98] transition-all border border-slate-100/50 shadow-sm"
+      className="w-full bg-white rounded-[24px] p-5 pr-6 flex items-center justify-between group active:scale-[0.98] transition-all border border-slate-100/50 shadow-sm"
     >
-      <div className="flex items-center gap-5">
+      <div className="flex items-center gap-4">
         <div className="shrink-0 transition-transform group-hover:scale-110">
           {icon}
         </div>
         <div className="text-left">
-          <p className={`text-[17px] font-black ${isDanger ? 'text-rose-500' : 'text-slate-800'}`}>{label}</p>
-          {subtext && <p className="text-xs font-bold text-slate-400 mt-0.5">{subtext}</p>}
+          <p className={`text-[16px] font-black ${isDanger ? 'text-rose-500' : 'text-slate-800'}`}>{label}</p>
+          {subtext && <p className="text-[11px] font-bold text-slate-400 mt-0.5">{subtext}</p>}
         </div>
       </div>
       <span className="text-slate-200 group-hover:text-slate-400 transition-colors text-lg opacity-50">➜</span>

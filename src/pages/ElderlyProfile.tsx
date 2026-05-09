@@ -472,7 +472,7 @@ export default function ElderlyProfile() {
               <div className="px-8 pt-10 pb-6 flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-black text-text-main tracking-tight">关联机器人</h2>
-                  <p className="text-[11px] font-bold text-text-muted uppercase tracking-widest mt-1">选择为 {defaultOwner?.name} 服务的一台或多台机器</p>
+                  <p className="text-[11px] font-bold text-text-muted uppercase tracking-widest mt-1">选择服务主人的关联设备</p>
                 </div>
                 <button 
                   onClick={() => setShowRobotPicker(false)}
