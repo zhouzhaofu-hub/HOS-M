@@ -205,7 +205,7 @@ export default function Health() {
                    <BrainCircuit className="w-10 h-10 text-blue-600" />
                 </div>
                 <p className="text-[10px] font-black text-slate-800 leading-relaxed max-w-sm mx-auto">
-                  {hasRobotBound ? `AI 评估建议：当前生理机能处于"${data.prediction.riskLevel === '极低' || data.prediction.riskLevel === '低' ? '卓越' : '稳定'}"状态，建议维持健康生活习惯。` : '当前尚未同步到设备监测数据，请优先查看历史快照。'}
+                  {hasRobotBound ? `今日健康简略：体征数据实时同步，各项机能状态评估为"${data.prediction.riskLevel === '极低' || data.prediction.riskLevel === '低' ? '优秀' : '良好'}"。血压近期略有波动，建议严格遵循用药计划。` : '当前尚未同步到设备监测数据，请优先查看历史记录快照。'}
                 </p>
               </div>
 
@@ -217,6 +217,7 @@ export default function Health() {
                   value={displayVitals.heart}
                   unit="次/分"
                   color="text-slate-800"
+                  range="60-100"
                 />
                 <MetricCard 
                   icon={<Activity className="w-4 h-4 text-indigo-500" />}
@@ -224,6 +225,7 @@ export default function Health() {
                   value={displayVitals.bp}
                   unit="毫米汞柱"
                   color="text-orange-500"
+                  range="<140/90"
                 />
                 <MetricCard 
                   icon={<Wind className="w-4 h-4 text-blue-500" />}
@@ -231,6 +233,7 @@ export default function Health() {
                   value={displayVitals.oxygen}
                   unit="%"
                   color="text-slate-800"
+                  range=">90%"
                 />
                 <MetricCard 
                   icon={<TrendingUp className="w-4 h-4 text-emerald-500" />}
@@ -238,6 +241,7 @@ export default function Health() {
                   value={hasRobotBound ? data.prediction.score : '-'}
                   unit="分"
                   color="text-emerald-500"
+                  range="0-100"
                 />
               </div>
 
@@ -365,11 +369,11 @@ export default function Health() {
 
                 <div className="grid grid-cols-2 gap-3 mb-5">
                   <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                    <p className="text-[8px] font-black text-slate-400 uppercase mb-0.5 tracking-wider">活跃时长</p>
+                    <p className="text-[8px] font-black text-slate-400 uppercase mb-0.5 tracking-wider">活跃时长 <span className="opacity-60 ml-1">(参考: &gt;30min)</span></p>
                     <p className="text-base font-black text-slate-900 tracking-tight">{data.exercise.activeMins} <span className="text-[9px] text-slate-400">分钟</span></p>
                   </div>
                   <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                    <p className="text-[8px] font-black text-slate-400 uppercase mb-0.5 tracking-wider">目标进度</p>
+                    <p className="text-[8px] font-black text-slate-400 uppercase mb-0.5 tracking-wider">目标进度 <span className="opacity-60 ml-1">(参考: &gt;80%)</span></p>
                     <p className="text-base font-black text-emerald-500 tabular-nums">{Math.round((data.exercise.steps / data.exercise.goal) * 100)}%</p>
                   </div>
                 </div>
@@ -416,14 +420,17 @@ export default function Health() {
   );
 }
 
-function MetricCard({ icon, label, value, unit, color }: { icon: React.ReactNode, label: string, value: string | number, unit: string, color: string }) {
+function MetricCard({ icon, label, value, unit, color, range }: { icon: React.ReactNode, label: string, value: string | number, unit: string, color: string, range?: string }) {
   return (
     <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-col gap-4 hover:shadow-md transition-all group active:scale-[0.98]">
       <div className="flex flex-col gap-1">
         <div className="w-10 h-10 rounded-[18px] bg-slate-50 flex items-center justify-center grayscale group-hover:grayscale-0 transition-all shadow-sm">
            {icon}
         </div>
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2 ml-1">{label}</p>
+        <div className="flex items-center justify-between mt-2 ml-1">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</p>
+          {range && <span className="text-[8px] font-bold text-slate-300 tabular-nums">范围: {range}</span>}
+        </div>
       </div>
       <div className="pl-1">
         <span className={`text-2xl font-black ${color} tracking-tight tabular-nums`}>{value}</span>

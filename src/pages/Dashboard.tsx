@@ -118,16 +118,20 @@ export default function Dashboard() {
         {/* Physical Status Briefing */}
         <div className="space-y-3">
           <div className="bg-white border border-slate-100 p-6 rounded-[32px] shadow-sm">
-            <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center justify-between mb-4">
                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">生理指标简报</h4>
                <div className="bg-blue-50 px-1.5 py-0.5 rounded-lg">
                   <span className="text-[7px] font-black text-blue-600 uppercase tracking-widest">实时已同步</span>
                </div>
             </div>
             
+            <p className="text-[11px] font-bold text-slate-500 mb-6 leading-relaxed bg-slate-50/50 p-3 rounded-2xl border border-slate-50">
+              今日健康概况：生命体征整体平稳，心率与呼吸频率处于理想区间。注意：当前收缩压略高于预警线（140mmHg），建议减少钠盐摄入并增加静息休息。
+            </p>
+            
             <div className="grid grid-cols-2 gap-x-8 gap-y-6">
                <div className="flex flex-col">
-                  <p className="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest">心率指标</p>
+                  <p className="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest">心率指标 <span className="text-[8px] font-bold opacity-60 ml-1">(正常: 60-100)</span></p>
                   <p className="text-xl font-black text-slate-900 tabular-nums">{hasRobotBound ? '72' : '-'}</p>
                   <div className={`flex items-center gap-1 text-[8px] font-black uppercase tracking-widest ${hasRobotBound ? 'text-emerald-500' : 'text-slate-300'}`}>
                      <div className={`w-1 h-1 rounded-full ${hasRobotBound ? 'bg-emerald-500 animate-pulse' : 'bg-slate-200'}`} />
@@ -135,21 +139,21 @@ export default function Dashboard() {
                   </div>
                </div>
                <div className="flex flex-col">
-                  <p className="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest">平均血压</p>
+                  <p className="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest">平均血压 <span className="text-[8px] font-bold opacity-60 ml-1">(正常: &lt;140/90)</span></p>
                   <p className={`text-xl font-black tabular-nums ${hasRobotBound ? 'text-orange-500' : 'text-slate-900'}`}>{hasRobotBound ? '150/95' : '-'}</p>
                   <p className={`text-[8px] font-black uppercase tracking-widest ${hasRobotBound ? 'text-orange-500' : 'text-slate-300'}`}>
                     {hasRobotBound ? '血压偏高' : '暂无数据'}
                   </p>
                </div>
                <div className="flex flex-col">
-                  <p className="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest">呼吸指标</p>
+                  <p className="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest">呼吸指标 <span className="text-[8px] font-bold opacity-60 ml-1">(正常: 12-20)</span></p>
                   <p className="text-xl font-black text-slate-900 tabular-nums">{hasRobotBound ? '18' : '-'}</p>
                   <p className={`text-[8px] font-black uppercase tracking-widest ${hasRobotBound ? 'text-emerald-500' : 'text-slate-300'}`}>
                     {hasRobotBound ? '频率平稳' : '暂无数据'}
                   </p>
                </div>
                <div className="flex flex-col">
-                  <p className="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest">睡眠时长</p>
+                  <p className="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest">睡眠时长 <span className="text-[8px] font-bold opacity-60 ml-1">(建议: 7-9h)</span></p>
                   <p className="text-xl font-black text-slate-900 tabular-nums">{hasRobotBound ? '7.5h' : '-'}</p>
                   <p className={`text-[8px] font-black uppercase tracking-widest ${hasRobotBound ? 'text-blue-500' : 'text-slate-300'}`}>
                     {hasRobotBound ? '睡眠充足' : '暂无记录'}
